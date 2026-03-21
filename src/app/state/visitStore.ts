@@ -4,15 +4,19 @@ import { persist } from 'zustand/middleware';
 interface VisitState {
   lastVisitAt: string | null;
   recentEventIds: string[];
+  /** Oculta o banner de boas-vindas na Home após "Entendi" / CTA. */
+  homeWelcomeDismissed: boolean;
   pushRecentEvent: (eventId: string) => void;
   markVisitComplete: () => void;
+  dismissHomeWelcome: () => void;
 }
 
 export const useVisitStore = create<VisitState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       lastVisitAt: null,
       recentEventIds: [],
+      homeWelcomeDismissed: false,
 
       pushRecentEvent: (eventId) =>
         set((s) => {
@@ -21,8 +25,21 @@ export const useVisitStore = create<VisitState>()(
         }),
 
       markVisitComplete: () => set({ lastVisitAt: new Date().toISOString() }),
+
+      dismissHomeWelcome: () => set({ homeWelcomeDismissed: true }),
     }),
-    { name: 'eds-visit' }
+    {
+      name: 'eds-visit',
+      merge: (persisted, current) => {
+        const p = persisted as Partial<VisitState> | undefined;
+        if (!p || typeof p !== 'object') return current;
+        return {
+          ...current,
+          ...p,
+          homeWelcomeDismissed: p.homeWelcomeDismissed ?? Boolean(p.lastVisitAt),
+        };
+      },
+    }
   )
 );
 

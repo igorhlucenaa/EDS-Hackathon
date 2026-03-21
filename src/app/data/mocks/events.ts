@@ -200,3 +200,10 @@ export const mockUpcomingEvents: SportEvent[] = [
     isFeatured: true,
   },
 ];
+
+/** Jogo em destaque na Home: maior audiência entre partidas ao vivo (regra explícita, sem índice fixo). */
+export function pickHeroLiveEvent(events: SportEvent[]): SportEvent | undefined {
+  const live = events.filter((e) => e.status.type === 'live');
+  if (live.length === 0) return undefined;
+  return [...live].sort((a, b) => (b.viewerCount ?? 0) - (a.viewerCount ?? 0))[0];
+}
