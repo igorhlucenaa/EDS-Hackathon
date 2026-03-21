@@ -13,6 +13,22 @@ const BetslipPage = lazy(() => import("./app/features/betslip/BetslipPage"));
 const BetsPage = lazy(() => import("./app/features/bets/BetsPage"));
 const ExplorePage = lazy(() => import("./app/features/explore/ExplorePage"));
 const AccountPage = lazy(() => import("./app/features/account/AccountPage"));
+const IntentExplorePage = lazy(() => import("./app/premium/intentions/IntentExplorePage"));
+const GlobalSearchPage = lazy(() => import("./app/features/search/GlobalSearchPage"));
+const SportPage = lazy(() => import("./app/features/sport/SportPage"));
+const LeaguePage = lazy(() => import("./app/features/league/LeaguePage"));
+const FavoritesPage = lazy(() => import("./app/features/favorites/FavoritesPage"));
+const PromotionsPage = lazy(() => import("./app/features/promotions/PromotionsPage"));
+const WalletPage = lazy(() => import("./app/features/wallet/WalletPage"));
+const DepositPage = lazy(() => import("./app/features/wallet/DepositPage"));
+const WithdrawPage = lazy(() => import("./app/features/wallet/WithdrawPage"));
+const NotificationsPage = lazy(() => import("./app/features/notifications/NotificationsPage"));
+const PreferencesPage = lazy(() => import("./app/features/preferences/PreferencesPage"));
+const HelpPage = lazy(() => import("./app/features/help/HelpPage"));
+const MarketExplorerPage = lazy(() => import("./app/features/market/MarketExplorerPage"));
+const LoginPage = lazy(() => import("./app/features/auth/LoginPage"));
+const RegisterPage = lazy(() => import("./app/features/auth/RegisterPage"));
+const OnboardingPage = lazy(() => import("./app/features/onboarding/OnboardingPage"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -37,11 +53,27 @@ const App = () => (
               <Route path="/" element={<HomePage />} />
               <Route path="/live" element={<LivePage />} />
               <Route path="/explore" element={<ExplorePage />} />
+              <Route path="/search" element={<GlobalSearchPage />} />
+              <Route path="/sport/:sportId" element={<SportPage />} />
+              <Route path="/league/:leagueId" element={<LeaguePage />} />
               <Route path="/event/:id" element={<EventPage />} />
               <Route path="/betslip" element={<BetslipPage />} />
               <Route path="/bets" element={<BetsPage />} />
               <Route path="/account" element={<AccountPage />} />
+              <Route path="/account/preferences" element={<PreferencesPage />} />
+              <Route path="/intencoes" element={<IntentExplorePage />} />
+              <Route path="/favorites" element={<FavoritesPage />} />
+              <Route path="/promotions" element={<PromotionsPage />} />
+              <Route path="/wallet" element={<WalletPage />} />
+              <Route path="/wallet/deposit" element={<DepositPage />} />
+              <Route path="/wallet/withdraw" element={<WithdrawPage />} />
+              <Route path="/notifications" element={<NotificationsPage />} />
+              <Route path="/help" element={<HelpPage />} />
+              <Route path="/market-explorer" element={<MarketExplorerPage />} />
             </Route>
+            <Route path="/auth/login" element={<LoginPage />} />
+            <Route path="/auth/register" element={<RegisterPage />} />
+            <Route path="/onboarding" element={<OnboardingPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>

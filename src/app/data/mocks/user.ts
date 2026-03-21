@@ -39,7 +39,7 @@ export const mockBets: UserBet[] = [
         outcomeId: 'o-h-2', outcomeName: 'Corinthians', odds: 2.30,
       },
     ],
-    stake: 50, potentialReturn: 218.50, status: 'open', cashoutValue: 42.30,
+    stake: 50, potentialReturn: 218.50, status: 'cashout_available', cashoutValue: 42.30,
     placedAt: new Date(Date.now() - 120 * 60000).toISOString(), betType: 'accumulator',
   },
   {

@@ -1,11 +1,14 @@
 import { mockSports, mockLeagues } from '@/app/data/mocks/sports';
 import { mockUpcomingEvents, mockLiveEvents } from '@/app/data/mocks/events';
+import { IntentExploreEntry } from '@/app/premium/intentions/IntentExploreEntry';
 import { EventCard } from '@/app/shared/ui/EventCard';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { Search, X } from 'lucide-react';
 
 export default function ExplorePage() {
+  const navigate = useNavigate();
   const [selectedSport, setSelectedSport] = useState<string | null>(null);
   const [search, setSearch] = useState('');
 
@@ -23,8 +26,9 @@ export default function ExplorePage() {
 
   return (
     <div className="space-y-4 py-4">
-      <div className="px-4">
-        <h1 className="text-xl font-display font-bold mb-3">Explorar</h1>
+      <div className="px-4 space-y-3">
+        <h1 className="text-xl font-display font-bold">Explorar</h1>
+        <IntentExploreEntry />
 
         {/* Search */}
         <div className="relative">
@@ -55,8 +59,12 @@ export default function ExplorePage() {
           {mockSports.map((sport) => (
             <button
               key={sport.id}
+              type="button"
               onClick={() => setSelectedSport(sport.id === selectedSport ? null : sport.id)}
-              className={cn('flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors', selectedSport === sport.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary border-border/50 text-muted-foreground')}
+              className={cn(
+                'flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-medium border transition-colors',
+                selectedSport === sport.id ? 'bg-primary text-primary-foreground border-primary' : 'bg-secondary border-border/50 text-muted-foreground'
+              )}
             >
               {sport.icon} {sport.name}
             </button>
@@ -70,7 +78,12 @@ export default function ExplorePage() {
           <h2 className="text-sm font-display font-bold mb-2">Ligas Populares</h2>
           <div className="flex gap-2 overflow-x-auto -mx-4 px-4 pb-1 scrollbar-hide">
             {sportLeagues.slice(0, 6).map((league) => (
-              <button key={league.id} className="flex-shrink-0 bg-card border border-border/50 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors">
+              <button
+                key={league.id}
+                type="button"
+                onClick={() => navigate(`/league/${league.id}`)}
+                className="flex-shrink-0 bg-card border border-border/50 rounded-lg px-3 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
+              >
                 {league.countryCode === 'BR' ? '🇧🇷' : league.countryCode === 'GB' ? '🇬🇧' : league.countryCode === 'ES' ? '🇪🇸' : '🌍'} {league.name}
               </button>
             ))}

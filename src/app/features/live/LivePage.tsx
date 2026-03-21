@@ -1,5 +1,7 @@
 import { mockLiveEvents } from '@/app/data/mocks/events';
 import { mockSports } from '@/app/data/mocks/sports';
+import { getPressureForEvent } from '@/app/data/mocks/premium';
+import { GamePressureCard } from '@/app/premium/pressure/GamePressureCard';
 import { LiveSnapshotCard } from '@/app/shared/ui/LiveSnapshotCard';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
@@ -27,6 +29,8 @@ export default function LivePage() {
 
       {/* Sport Filters */}
       <div className="px-4">
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-primary/90 mb-2">Premium · Pressão do jogo</p>
+        <p className="text-xs text-muted-foreground mb-3">Intensidade, dominância e ritmo — sem ruído extra.</p>
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
           <button
             onClick={() => setActiveSport(null)}
@@ -54,9 +58,13 @@ export default function LivePage() {
 
       {/* Live Events */}
       <motion.div layout className="px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {filtered.map((event) => (
-          <LiveSnapshotCard key={event.id} event={event} />
-        ))}
+        {filtered.map((event) =>
+          getPressureForEvent(event.id) ? (
+            <GamePressureCard key={event.id} event={event} />
+          ) : (
+            <LiveSnapshotCard key={event.id} event={event} />
+          )
+        )}
         {filtered.length === 0 && (
           <div className="col-span-full text-center py-12 text-muted-foreground">
             <Zap className="w-8 h-8 mx-auto mb-2 opacity-30" />

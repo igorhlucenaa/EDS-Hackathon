@@ -1,3 +1,4 @@
+import { BetslipCopilot } from '@/app/premium/copilot/BetslipCopilot';
 import { useBetslipStore } from '@/app/state/betslipStore';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,7 +32,7 @@ export default function BetslipPage() {
   }
 
   return (
-    <div className="space-y-4 py-4 pb-32">
+    <div className="space-y-4 py-4 pb-[22rem]">
       {/* Header */}
       <div className="px-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -97,6 +98,8 @@ export default function BetslipPage() {
           ))}
         </AnimatePresence>
       </div>
+
+      <BetslipCopilot />
 
       {/* Stake & Summary — Fixed Bottom */}
       <div className="fixed bottom-16 left-0 right-0 z-30 glass-surface border-t border-border/50 p-4 space-y-3">

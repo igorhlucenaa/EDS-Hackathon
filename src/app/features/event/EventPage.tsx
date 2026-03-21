@@ -3,10 +3,13 @@ import { mockLiveEvents, mockUpcomingEvents } from '@/app/data/mocks/events';
 import { OddsCell } from '@/app/shared/ui/OddsCell';
 import { useBetslipStore } from '@/app/state/betslipStore';
 import { useUserStore } from '@/app/state/userStore';
-import { useState } from 'react';
+import { useVisitStore } from '@/app/state/visitStore';
+import { useEffect, useState } from 'react';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
-import { ArrowLeft, Star, Info, ChevronDown, ChevronUp } from 'lucide-react';
+import { getEventInsight, getEventStats, getEventTimeline } from '@/app/data/mocks/eventInsights';
+import { TrustOddsNote } from '@/app/shared/ui/TrustMicrocopy';
+import { ArrowLeft, Star, Info, ChevronDown, ChevronUp, Sparkles } from 'lucide-react';
 import { Market, SportEvent } from '@/app/data/models/types';
 
 function MarketGroup({ market, event }: { market: Market; event: SportEvent }) {
@@ -68,7 +71,12 @@ function MarketGroup({ market, event }: { market: Market; event: SportEvent }) {
 export default function EventPage() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const pushRecentEvent = useVisitStore((s) => s.pushRecentEvent);
   const [activeTab, setActiveTab] = useState<'markets' | 'stats' | 'timeline'>('markets');
+
+  useEffect(() => {
+    if (id) pushRecentEvent(id);
+  }, [id, pushRecentEvent]);
 
   const event = [...mockLiveEvents, ...mockUpcomingEvents].find((e) => e.id === id);
   if (!event) {
@@ -80,7 +88,9 @@ export default function EventPage() {
   }
 
   const isLive = event.status.type === 'live';
-  const categories = [...new Set(event.markets.map((m) => m.category))];
+  const insight = getEventInsight(event.id);
+  const stats = getEventStats(event.id);
+  const timeline = getEventTimeline(event.id);
 
   return (
     <div className="space-y-4 pb-4">
@@ -133,6 +143,25 @@ export default function EventPage() {
         )}
       </div>
 
+      {/* Match Hub — insights rápidos */}
+      <div className="px-4">
+        <div className="rounded-2xl border border-primary/25 bg-gradient-to-br from-primary/10 to-card p-4 space-y-2">
+          <div className="flex items-center gap-2 text-primary">
+            <Sparkles className="w-4 h-4" />
+            <span className="text-xs font-bold uppercase tracking-wide">Insight</span>
+          </div>
+          <p className="text-sm font-semibold">{insight.headline}</p>
+          <ul className="text-xs text-muted-foreground space-y-1">
+            {insight.bullets.map((b) => (
+              <li key={b}>• {b}</li>
+            ))}
+          </ul>
+        </div>
+        <div className="mt-2">
+          <TrustOddsNote />
+        </div>
+      </div>
+
       {/* Tabs */}
       <div className="px-4">
         <div className="flex gap-1 bg-secondary rounded-lg p-0.5">
@@ -160,17 +189,35 @@ export default function EventPage() {
         </div>
       )}
 
-      {/* Stats placeholder */}
       {activeTab === 'stats' && (
-        <div className="px-4 text-center py-12 text-muted-foreground">
-          <p className="text-sm">Estatísticas em breve</p>
+        <div className="px-4 space-y-2">
+          {stats.map((row) => (
+            <div key={row.label} className="flex items-center justify-between rounded-xl border border-border/50 bg-card px-3 py-2.5 text-sm">
+              <span className="text-muted-foreground">{row.label}</span>
+              <span className="font-semibold tabular-nums">
+                {row.home} — {row.away}
+              </span>
+            </div>
+          ))}
         </div>
       )}
 
-      {/* Timeline placeholder */}
       {activeTab === 'timeline' && (
-        <div className="px-4 text-center py-12 text-muted-foreground">
-          <p className="text-sm">Timeline em breve</p>
+        <div className="px-4 space-y-2">
+          {timeline.map((t) => (
+            <div
+              key={t.id}
+              className={cn(
+                'rounded-xl border border-border/40 px-3 py-2.5 text-sm',
+                t.side === 'home' && 'border-l-2 border-l-primary',
+                t.side === 'away' && 'border-l-2 border-l-live-pulse',
+                t.side === 'neutral' && 'border-l-2 border-l-muted'
+              )}
+            >
+              <span className="text-[10px] text-muted-foreground">{t.minute}</span>
+              <p className="text-xs mt-0.5">{t.text}</p>
+            </div>
+          ))}
         </div>
       )}
     </div>

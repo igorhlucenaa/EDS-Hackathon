@@ -1,9 +1,12 @@
 import { mockLiveEvents, mockUpcomingEvents } from '@/app/data/mocks/events';
 import { mockSports } from '@/app/data/mocks/sports';
 import { mockPromotions, mockBets } from '@/app/data/mocks/user';
+import { OpportunityRadarSection } from '@/app/premium/opportunity/OpportunityRadarSection';
+import { SmartResumeSection } from '@/app/premium/resume/SmartResumeSection';
 import { LiveSnapshotCard } from '@/app/shared/ui/LiveSnapshotCard';
 import { EventCard } from '@/app/shared/ui/EventCard';
 import { useBetslipStore } from '@/app/state/betslipStore';
+import { useUserStore } from '@/app/state/userStore';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -28,10 +31,26 @@ function SectionHeader({ title, icon: Icon, actionLabel, onAction }: { title: st
 export default function HomePage() {
   const navigate = useNavigate();
   const toggleSelection = useBetslipStore((s) => s.toggleSelection);
+  const selections = useBetslipStore((s) => s.selections);
   const openBets = mockBets.filter(b => b.status === 'open' || b.status === 'live');
+  const isPro = useUserStore((s) => s.experienceMode === 'pro');
+
+  const adaptiveTop = isPro ? (
+    <>
+      <OpportunityRadarSection />
+      <SmartResumeSection />
+    </>
+  ) : (
+    <>
+      <SmartResumeSection />
+      <OpportunityRadarSection />
+    </>
+  );
 
   return (
     <div className="space-y-6 py-4">
+      {adaptiveTop}
+
       {/* Hero — Featured Event */}
       {mockLiveEvents[2] && (
         <section className="px-4">
@@ -71,25 +90,38 @@ export default function HomePage() {
               const m = mockLiveEvents[2].markets[0];
               return (
                 <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                  {m.outcomes.map((o) => (
-                    <button
-                      key={o.id}
-                      onClick={() => toggleSelection({
-                        id: `${mockLiveEvents[2].id}-${o.id}`,
-                        eventId: mockLiveEvents[2].id,
-                        event: mockLiveEvents[2],
-                        marketId: m.id,
-                        marketName: m.name,
-                        outcomeId: o.id,
-                        outcomeName: o.name,
-                        odds: o.odds,
-                      })}
-                      className="flex-1 bg-secondary/80 hover:bg-secondary rounded-lg py-2 text-center transition-colors"
-                    >
-                      <span className="block text-[10px] text-muted-foreground">{o.name}</span>
-                      <span className="text-sm font-semibold tabular-nums">{o.odds.toFixed(2)}</span>
-                    </button>
-                  ))}
+                  {m.outcomes.map((o) => {
+                    const isSel = selections.some((sel) => sel.outcomeId === o.id);
+                    return (
+                      <button
+                        key={o.id}
+                        type="button"
+                        onClick={() =>
+                          toggleSelection({
+                            id: `${mockLiveEvents[2].id}-${o.id}`,
+                            eventId: mockLiveEvents[2].id,
+                            event: mockLiveEvents[2],
+                            marketId: m.id,
+                            marketName: m.name,
+                            outcomeId: o.id,
+                            outcomeName: o.name,
+                            odds: o.odds,
+                          })
+                        }
+                        className={cn(
+                          'flex-1 rounded-lg py-2 text-center transition-all duration-200',
+                          isSel ? 'odds-cell-selected' : 'bg-secondary/80 hover:bg-secondary border border-border/50'
+                        )}
+                      >
+                        <span className={cn('block text-[10px]', isSel ? 'text-white/85' : 'text-muted-foreground')}>
+                          {o.name}
+                        </span>
+                        <span className={cn('text-sm tabular-nums', isSel ? 'text-white font-bold' : 'font-semibold')}>
+                          {o.odds.toFixed(2)}
+                        </span>
+                      </button>
+                    );
+                  })}
                 </div>
               );
             })() : null}
@@ -97,16 +129,24 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* Quick Bet Strip */}
+      {/* Quick Bet Strip — trilhas reais */}
       <section className="px-4">
-        <SectionHeader title="Apostas Rápidas" icon={TrendingUp} />
+        <SectionHeader title="Apostas Rápidas" icon={TrendingUp} actionLabel="Por intenção" onAction={() => navigate('/intencoes')} />
         <div className="flex gap-2 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide">
-          {['⚡ Odds Altas', '🔥 Popular Agora', '⏰ Começando', '🎯 Aposta Segura'].map((label) => (
+          {[
+            { label: '⚡ Odds altas', to: '/intencoes' },
+            { label: '🔥 Ao vivo', to: '/live' },
+            { label: '⏰ Começando', to: '/explore' },
+            { label: '🎯 Mercados', to: '/market-explorer' },
+            { label: '⭐ Favoritos', to: '/favorites' },
+          ].map((item) => (
             <button
-              key={label}
+              key={item.label}
+              type="button"
+              onClick={() => navigate(item.to)}
               className="flex-shrink-0 bg-secondary border border-border/50 rounded-full px-4 py-2 text-xs font-medium text-muted-foreground hover:text-foreground hover:border-primary/30 transition-colors"
             >
-              {label}
+              {item.label}
             </button>
           ))}
         </div>
@@ -118,7 +158,7 @@ export default function HomePage() {
           {mockSports.slice(0, 6).map((sport) => (
             <button
               key={sport.id}
-              onClick={() => navigate(`/explore?sport=${sport.id}`)}
+              onClick={() => navigate(`/sport/${sport.id}`)}
               className="flex-shrink-0 flex flex-col items-center gap-1 bg-card border border-border/50 rounded-xl px-4 py-2.5 hover:border-primary/30 transition-colors min-w-[72px]"
             >
               <span className="text-lg">{sport.icon}</span>
@@ -190,7 +230,9 @@ export default function HomePage() {
               <span className="text-[10px] font-medium text-primary uppercase tracking-wider">{promo.category}</span>
               <h3 className="text-sm font-display font-bold">{promo.title}</h3>
               <p className="text-xs text-muted-foreground line-clamp-2">{promo.description}</p>
-              <button className="text-xs font-semibold text-primary hover:underline">{promo.ctaText} →</button>
+              <button type="button" onClick={() => navigate('/promotions')} className="text-xs font-semibold text-primary hover:underline">
+                {promo.ctaText} →
+              </button>
             </div>
           ))}
         </div>

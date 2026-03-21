@@ -11,8 +11,8 @@ interface OddsCellProps {
 }
 
 export function OddsCell({ outcome, onSelect, className, compact }: OddsCellProps) {
-  const hasSelection = useBetslipStore((s) => s.hasSelection);
-  const isSelected = hasSelection(outcome.id);
+  // Inscrever em `selections` (não na função `hasSelection`), senão o Zustand não re-renderiza quando o cupom muda.
+  const isSelected = useBetslipStore((s) => s.selections.some((sel) => sel.outcomeId === outcome.id));
   const oddsChange = outcome.previousOdds
     ? outcome.odds > outcome.previousOdds ? 'up' : outcome.odds < outcome.previousOdds ? 'down' : null
     : null;
@@ -36,16 +36,23 @@ export function OddsCell({ outcome, onSelect, className, compact }: OddsCellProp
       )}
     >
       {!compact && (
-        <span className="block text-[10px] text-muted-foreground mb-0.5 truncate">
+        <span
+          className={cn(
+            'odds-label block text-[10px] mb-0.5 truncate',
+            isSelected ? 'text-white/85' : 'text-muted-foreground'
+          )}
+        >
           {outcome.name}
         </span>
       )}
-      <span className={cn(
-        'font-semibold tabular-nums text-sm',
-        isSelected ? 'text-primary-foreground' : 'text-foreground',
-        oddsChange === 'up' && !isSelected && 'odds-up',
-        oddsChange === 'down' && !isSelected && 'odds-down',
-      )}>
+      <span
+        className={cn(
+          'odds-value font-semibold tabular-nums text-sm',
+          isSelected ? 'text-white font-bold' : 'text-foreground',
+          oddsChange === 'up' && !isSelected && 'odds-up',
+          oddsChange === 'down' && !isSelected && 'odds-down',
+        )}
+      >
         {outcome.odds.toFixed(2)}
       </span>
       <AnimatePresence>
