@@ -1,6 +1,7 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { Home, Zap, Search, ClipboardList, User, Receipt, Wallet } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import brandLogo from '@/assets/esportes-da-sorte-logo.svg?url';
 import { useBetslipStore } from '@/app/state/betslipStore';
 import { mockUser, mockNotifications } from '@/app/data/mocks/user';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -30,9 +31,15 @@ export default function MainLayout() {
               type="button"
               onClick={() => navigate('/')}
               className="flex items-center gap-2 min-w-0"
+              aria-label="Ir para início"
             >
-              <span className="text-xl font-display font-bold text-primary">EDS</span>
-              <span className="text-xs text-muted-foreground hidden sm:block truncate">Esportes da Sorte</span>
+              <img
+                src={brandLogo}
+                alt="Esportes da Sorte"
+                className="h-7 w-auto max-w-[min(100%,220px)] object-contain object-left shrink-0"
+                width={220}
+                height={76}
+              />
             </button>
           </div>
 

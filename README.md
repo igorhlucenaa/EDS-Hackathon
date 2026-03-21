@@ -1,4 +1,4 @@
-# Swiftbet / EDS — Plataforma (front-end)
+# Hackathon Esportes da Sorte — Plataforma (front-end)
 
 Sportsbook em **React + Vite + TypeScript**, **Tailwind** e **shadcn/ui**. Dados de demonstração via mocks.
 
