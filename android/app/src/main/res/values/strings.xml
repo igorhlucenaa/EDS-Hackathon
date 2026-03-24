@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Hackathon Esportes da Sorte</string>
+    <string name="title_activity_main">Hackathon Esportes da Sorte</string>
+    <string name="package_name">com.esportesdasorte.app</string>
+    <string name="custom_url_scheme">com.esportesdasorte.app</string>
+</resources>
