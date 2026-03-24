@@ -2,8 +2,6 @@ import { mockLiveEvents, mockUpcomingEvents, pickHeroLiveEvent } from '@/app/dat
 import { mockSports } from '@/app/data/mocks/sports';
 import { mockPromotions, mockBets } from '@/app/data/mocks/user';
 import type { SportEvent } from '@/app/data/models/types';
-import { OpportunityRadarSection } from '@/app/premium/opportunity/OpportunityRadarSection';
-import { SmartResumeSection } from '@/app/premium/resume/SmartResumeSection';
 import { LiveSnapshotCard } from '@/app/shared/ui/LiveSnapshotCard';
 import { EventCard } from '@/app/shared/ui/EventCard';
 import { HorizontalScrollRow } from '@/app/shared/ui/HorizontalScrollRow';
@@ -11,8 +9,24 @@ import { useBetslipStore } from '@/app/state/betslipStore';
 import { useUserStore } from '@/app/state/userStore';
 import { useVisitStore } from '@/app/state/visitStore';
 import { HomeWelcomeBanner } from './HomeWelcomeBanner';
+import { lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+
+const OpportunityRadarSection = lazy(() =>
+  import('@/app/premium/opportunity/OpportunityRadarSection').then((m) => ({ default: m.OpportunityRadarSection }))
+);
+const SmartResumeSection = lazy(() =>
+  import('@/app/premium/resume/SmartResumeSection').then((m) => ({ default: m.SmartResumeSection }))
+);
+
+function PremiumSectionsFallback() {
+  return (
+    <div
+      className="mx-4 h-28 rounded-2xl border border-border/40 bg-muted/15 animate-pulse"
+      aria-hidden
+    />
+  );
+}
 import { cn } from '@/lib/utils';
 import {
   Zap,
@@ -77,13 +91,11 @@ function HeroFeaturedCard({ event }: { event: SportEvent }) {
   return (
     <section className="px-4">
       <div className="mb-2 px-0.5">
-        <p className="text-[10px] font-semibold uppercase tracking-wider text-primary/90">Destaque da home</p>
+        <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">Destaque da home</p>
         <p className="text-xs text-muted-foreground">Partida ao vivo com maior audiência no momento — abra para ver todos os mercados.</p>
       </div>
-      <motion.div
-        initial={{ opacity: 0, y: 12 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="relative bg-gradient-to-br from-primary/20 via-card to-card border border-primary/20 rounded-2xl p-4 cursor-pointer overflow-hidden"
+      <div
+        className="hero-card-enter relative bg-gradient-to-br from-primary/20 via-card to-card border border-primary/20 rounded-2xl p-4 cursor-pointer overflow-hidden"
         onClick={() => navigate(`/event/${event.id}`)}
       >
         <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -translate-y-1/2 translate-x-1/2" aria-hidden />
@@ -152,7 +164,7 @@ function HeroFeaturedCard({ event }: { event: SportEvent }) {
             })}
           </div>
         )}
-      </motion.div>
+      </div>
     </section>
   );
 }
@@ -185,7 +197,7 @@ export default function HomePage() {
     <div className="space-y-6 py-4">
       <HomeWelcomeBanner />
 
-      {adaptiveTop}
+      <Suspense fallback={<PremiumSectionsFallback />}>{adaptiveTop}</Suspense>
 
       {heroEvent && <HeroFeaturedCard event={heroEvent} />}
 

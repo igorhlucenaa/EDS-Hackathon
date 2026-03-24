@@ -1,11 +1,9 @@
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Zap, Search, ClipboardList, User, Receipt, Wallet } from 'lucide-react';
+import { Bell, ClipboardList, Home, Receipt, Search, User, Wallet, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import brandLogo from '@/assets/esportes-da-sorte-logo.svg?url';
 import { useBetslipStore } from '@/app/state/betslipStore';
 import { mockUser, mockNotifications } from '@/app/data/mocks/user';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Bell } from 'lucide-react';
 
 const navItems = [
   { path: '/', label: 'Home', icon: Home },
@@ -84,25 +82,22 @@ export default function MainLayout() {
         <Outlet />
       </main>
 
-      <AnimatePresence>
-        {selections.length > 0 && (
-          <motion.button
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            onClick={() => {
-              setOpen(true);
-              navigate('/betslip');
-            }}
-            className="fixed z-[60] bg-primary text-primary-foreground rounded-full w-14 h-14 flex items-center justify-center shadow-lg shadow-primary/30 bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] right-[max(1rem,env(safe-area-inset-right,0px))]"
-          >
-            <Receipt className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-live-pulse text-[10px] font-bold flex items-center justify-center text-foreground">
-              {selections.length}
-            </span>
-          </motion.button>
-        )}
-      </AnimatePresence>
+      {selections.length > 0 && (
+        <button
+          type="button"
+          onClick={() => {
+            setOpen(true);
+            navigate('/betslip');
+          }}
+          className="fab-pop-in fixed z-[60] bg-primary text-primary-foreground rounded-full w-14 h-14 flex items-center justify-center shadow-lg shadow-primary/30 bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] right-[max(1rem,env(safe-area-inset-right,0px))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+          aria-label={`Abrir cupom com ${selections.length} seleção(ões)`}
+        >
+          <Receipt className="w-5 h-5" aria-hidden />
+          <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-live-pulse text-[10px] font-bold flex items-center justify-center text-foreground">
+            {selections.length}
+          </span>
+        </button>
+      )}
 
       <nav className="fixed bottom-0 left-0 right-0 z-50 w-full max-w-[100vw] glass-surface border-t border-border/50 pb-safe">
         <div className="relative flex h-16 w-full items-center justify-around px-safe-min">

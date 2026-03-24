@@ -20,8 +20,8 @@
     --secondary-foreground: 210 40% 96%;
 
     --muted: 222 30% 14%;
-    /* Contraste AA em texto secundário sobre fundos escuros (Lighthouse / WCAG) */
-    --muted-foreground: 215 14% 66%;
+    /* Contraste AA (texto secundário pequeno em UI escura) */
+    --muted-foreground: 215 10% 76%;
 
     --accent: 152 69% 53%;
     --accent-foreground: 222 47% 6%;
@@ -148,6 +148,36 @@
 
   .odds-down {
     @apply text-[hsl(var(--odds-down))];
+  }
+
+  .hero-card-enter {
+    animation: heroCardEnter 0.35s ease-out forwards;
+  }
+
+  @keyframes heroCardEnter {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fabPopIn {
+    from {
+      opacity: 0;
+      transform: scale(0.85);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .fab-pop-in {
+    animation: fabPopIn 0.22s ease-out forwards;
   }
 
   .live-pulse {

@@ -23,7 +23,7 @@ export function HomeWelcomeBanner() {
             <Sparkles className="w-5 h-5 text-primary" aria-hidden />
           </div>
           <div className="min-w-0 space-y-1">
-            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary/90">Primeira vez por aqui?</p>
+            <p className="text-[10px] font-semibold uppercase tracking-wider text-primary">Primeira vez por aqui?</p>
             <h2 className="text-base font-display font-bold leading-tight">Bem-vindo ao Esportes da Sorte</h2>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Explore eventos, monte seu cupom na navegação inferior e use as apostas rápidas quando já souber o que quer.
