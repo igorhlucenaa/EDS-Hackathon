@@ -46,8 +46,7 @@ function RadarCard({ item }: { item: OpportunityRadarItem }) {
 
   return (
     <motion.article
-      layout
-      className="flex-shrink-0 w-[min(88vw,320px)] rounded-2xl border border-border/50 bg-card/90 backdrop-blur-sm p-3.5 shadow-sm"
+      className="flex-shrink-0 w-[min(320px,calc(100vw-2.5rem))] rounded-2xl border border-border/50 bg-card/90 backdrop-blur-sm p-3.5 shadow-sm"
     >
       <div className="flex items-start justify-between gap-2 mb-2">
         <div className="flex items-center gap-2 min-w-0">
@@ -140,9 +139,9 @@ function RadarCard({ item }: { item: OpportunityRadarItem }) {
 
 function RadarSkeleton() {
   return (
-    <div className="flex gap-3 overflow-hidden -mx-4 px-4 pb-1">
+    <div className="flex gap-3 overflow-hidden -mx-4 pb-1 pl-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))]">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="flex-shrink-0 w-[min(88vw,320px)] h-[220px] rounded-2xl bg-secondary/60 animate-pulse" />
+        <div key={i} className="flex-shrink-0 w-[min(320px,calc(100vw-2.5rem))] h-[220px] rounded-2xl bg-secondary/60 animate-pulse" />
       ))}
     </div>
   );
@@ -184,9 +183,15 @@ export function OpportunityRadarSection() {
           </div>
         }
       >
-        <div className="flex gap-3 overflow-x-auto pb-1 -mx-4 px-4 scrollbar-hide snap-x snap-mandatory">
+        <div
+          className={cn(
+            'flex gap-3 overflow-x-auto overflow-y-visible pb-1 -mx-4 scrollbar-hide snap-x snap-mandatory',
+            'scroll-pl-4 scroll-pr-4',
+            'pl-[max(1rem,env(safe-area-inset-left,0px))] pr-[max(1rem,env(safe-area-inset-right,0px))]'
+          )}
+        >
           {items.map((item) => (
-            <div key={item.id} className="snap-start">
+            <div key={item.id} className="snap-start shrink-0">
               <RadarCard item={item} />
             </div>
           ))}

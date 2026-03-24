@@ -23,9 +23,10 @@ export default function MainLayout() {
   const unreadCount = mockNotifications.filter((n) => !n.isRead).length;
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="sticky top-0 z-40 glass-surface border-b border-border/50">
-        <div className="container flex items-center justify-between h-14 px-4">
+    <div className="min-h-dvh-safe bg-background flex flex-col overflow-x-hidden">
+      {/* fixed: sticky falha se algum ancestral tiver overflow/transform; garante barra sempre visível */}
+      <header className="fixed top-0 left-0 right-0 z-50 w-full max-w-[100vw] glass-surface border-b border-border/50 pt-safe">
+        <div className="mx-auto flex h-14 w-full max-w-[100vw] items-center justify-between px-4">
           <div className="flex items-center gap-2 min-w-0">
             <button
               type="button"
@@ -79,7 +80,7 @@ export default function MainLayout() {
         </div>
       </header>
 
-      <main className="flex-1 pb-20">
+      <main className="flex-1 w-full max-w-[100vw] pb-main-with-nav pt-[calc(env(safe-area-inset-top,0px)+3.5rem)]">
         <Outlet />
       </main>
 
@@ -93,7 +94,7 @@ export default function MainLayout() {
               setOpen(true);
               navigate('/betslip');
             }}
-            className="fixed bottom-24 right-4 z-50 bg-primary text-primary-foreground rounded-full w-14 h-14 flex items-center justify-center shadow-lg shadow-primary/30"
+            className="fixed z-[60] bg-primary text-primary-foreground rounded-full w-14 h-14 flex items-center justify-center shadow-lg shadow-primary/30 bottom-[calc(6rem+env(safe-area-inset-bottom,0px))] right-[max(1rem,env(safe-area-inset-right,0px))]"
           >
             <Receipt className="w-5 h-5" />
             <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-live-pulse text-[10px] font-bold flex items-center justify-center text-foreground">
@@ -103,8 +104,8 @@ export default function MainLayout() {
         )}
       </AnimatePresence>
 
-      <nav className="fixed bottom-0 left-0 right-0 z-40 glass-surface border-t border-border/50">
-        <div className="flex items-center justify-around h-16 max-w-lg mx-auto relative">
+      <nav className="fixed bottom-0 left-0 right-0 z-50 w-full max-w-[100vw] glass-surface border-t border-border/50 pb-safe">
+        <div className="relative flex h-16 w-full items-center justify-around px-safe-min">
           {navItems.map(({ path, label, icon: Icon }) => {
             const isActive = path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
             return (

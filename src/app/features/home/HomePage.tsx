@@ -202,7 +202,6 @@ export default function HomePage() {
             <button
               key={item.to + item.label}
               type="button"
-              role="listitem"
               onClick={() => navigate(item.to)}
               className={cn(
                 'flex-shrink-0 flex items-center gap-1.5 bg-secondary border border-border/50 rounded-full px-4 py-2',
@@ -228,7 +227,6 @@ export default function HomePage() {
             <button
               key={sport.id}
               type="button"
-              role="listitem"
               onClick={() => navigate(`/sport/${sport.id}`)}
               className={cn(
                 'flex-shrink-0 flex flex-col items-center gap-1 bg-card border border-border/50 rounded-xl px-4 py-2.5',
@@ -317,7 +315,6 @@ export default function HomePage() {
           {mockPromotions.map((promo) => (
             <div
               key={promo.id}
-              role="listitem"
               className="flex-shrink-0 w-[260px] snap-start bg-gradient-to-br from-primary/10 to-card border border-border/50 rounded-xl p-4 space-y-2"
             >
               <span className="text-[10px] font-medium text-primary uppercase tracking-wider">{promo.category}</span>

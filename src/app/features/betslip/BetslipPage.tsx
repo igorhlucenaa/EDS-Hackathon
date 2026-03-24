@@ -20,7 +20,7 @@ export default function BetslipPage() {
 
   if (selections.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
+      <div className="flex flex-col items-center justify-center min-h-[50dvh] px-4 text-center">
         <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mb-4">
           <span className="text-2xl">🎫</span>
         </div>
@@ -32,7 +32,7 @@ export default function BetslipPage() {
   }
 
   return (
-    <div className="space-y-4 py-4 pb-[22rem]">
+    <div className="space-y-4 py-4 pb-[calc(22rem+env(safe-area-inset-bottom,0px))]">
       {/* Header */}
       <div className="px-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -101,26 +101,42 @@ export default function BetslipPage() {
 
       <BetslipCopilot />
 
-      {/* Stake & Summary — Fixed Bottom */}
-      <div className="fixed bottom-16 left-0 right-0 z-30 glass-surface border-t border-border/50 p-4 space-y-3">
-        {/* Stake Input */}
-        <div className="flex items-center gap-2">
-          <label className="text-xs text-muted-foreground">Valor:</label>
-          <div className="flex-1 flex items-center gap-1 bg-secondary rounded-lg px-3 py-2">
-            <span className="text-xs text-muted-foreground">R$</span>
-            <input
-              type="number"
-              value={stake}
-              onChange={(e) => setStake(Number(e.target.value))}
-              className="flex-1 bg-transparent text-sm font-semibold outline-none tabular-nums"
-              min={1}
-            />
+      {/* Stake & Summary — Fixed Bottom (acima da tab bar + home indicator) */}
+      <div className="fixed bottom-[calc(4rem+env(safe-area-inset-bottom,0px))] left-0 right-0 z-30 glass-surface border-t border-border/50 space-y-3 p-4 px-safe-min">
+        {/* Stake Input — quebra linha em telas estreitas */}
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:flex-wrap">
+          <div className="flex items-center gap-2 min-w-0 flex-1 sm:min-w-[200px]">
+            <label className="text-xs text-muted-foreground shrink-0" htmlFor="betslip-stake-input">
+              Valor:
+            </label>
+            <div className="flex-1 flex items-center gap-1 bg-secondary rounded-lg px-3 py-2 min-w-0">
+              <span className="text-xs text-muted-foreground">R$</span>
+              <input
+                id="betslip-stake-input"
+                type="number"
+                value={stake}
+                onChange={(e) => setStake(Number(e.target.value))}
+                className="min-w-0 flex-1 bg-transparent text-sm font-semibold outline-none tabular-nums"
+                min={1}
+                inputMode="decimal"
+              />
+            </div>
           </div>
-          {[10, 25, 50, 100].map((v) => (
-            <button key={v} onClick={() => setStake(v)} className={cn('text-[10px] px-2 py-1 rounded-md border transition-colors', stake === v ? 'bg-primary text-primary-foreground border-primary' : 'border-border/50 text-muted-foreground hover:text-foreground')}>
-              {v}
-            </button>
-          ))}
+          <div className="flex flex-wrap gap-1.5 sm:justify-end sm:flex-1">
+            {[10, 25, 50, 100].map((v) => (
+              <button
+                key={v}
+                type="button"
+                onClick={() => setStake(v)}
+                className={cn(
+                  'text-[10px] min-h-9 min-w-[2.5rem] px-2.5 py-1.5 rounded-md border transition-colors',
+                  stake === v ? 'bg-primary text-primary-foreground border-primary' : 'border-border/50 text-muted-foreground hover:text-foreground'
+                )}
+              >
+                {v}
+              </button>
+            ))}
+          </div>
         </div>
 
         {/* Summary */}
