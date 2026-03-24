@@ -15,7 +15,8 @@ Plataforma de apostas esportivas em **React + Vite + TypeScript**, com **Tailwin
 | Navegação | React Router v6 (lazy loading) |
 | Ícones | Lucide React |
 | Animações | Framer Motion, CSS keyframes |
-| App nativo | Capacitor 6 (Android, iOS) |
+| App nativo (web) | Capacitor 6 (Android, iOS) |
+| App nativo (RN) | React Native + Expo 55 |
 
 ---
 
@@ -60,6 +61,9 @@ Acesse **http://localhost:8080**. O servidor usa HMR e recarrega automaticamente
 | `npm run cap:sync` | Build + sincroniza `dist/` para Android e iOS |
 | `npm run cap:open:android` | Abre o projeto no Android Studio |
 | `npm run cap:open:ios` | Abre o projeto no Xcode (apenas macOS) |
+| `npm run mobile` | Inicia o app React Native (Expo) |
+| `npm run mobile:android` | Roda o app em Android |
+| `npm run mobile:ios` | Roda o app em iOS (apenas macOS) |
 | `npm run test` | Rodar testes (Vitest) |
 | `npm run test:watch` | Rodar testes em modo watch |
 | `npm run lint` | ESLint |
@@ -94,6 +98,8 @@ src/
 
 android/                   # Projeto nativo Android (Capacitor)
 ios/                       # Projeto nativo iOS (Capacitor)
+mobile/                    # App React Native (Expo) — compartilha shared/
+shared/                    # Tipos, mocks e utils (web + mobile)
 scripts/                   # preview-compressed.mjs
 ```
 
@@ -158,6 +164,26 @@ O projeto está configurado com **Capacitor 6** para gerar apps **Android** e **
 
 - **Bundle ID**: `com.esportesdasorte.app` (edite em `capacitor.config.ts`)
 - **`base: './'`** no Vite — necessário para assets carregarem corretamente no WebView nativo
+
+---
+
+## React Native (Expo)
+
+O app mobile em **React Native + Expo** reaproveita tipos, mocks e lógica do `shared/`.
+
+### Executar
+
+```bash
+npm run mobile          # Inicia o Metro bundler
+npm run mobile:android  # Android (emulador ou dispositivo)
+npm run mobile:ios      # iOS (apenas macOS)
+```
+
+### Estrutura
+
+- `mobile/` — App Expo (navegação, telas, stores com AsyncStorage)
+- `shared/` — Tipos, mocks (events, sports, user), utils (timeUntil)
+- Web e mobile usam o mesmo `shared/`; a camada de UI é independente (RN components vs React + Tailwind)
 
 ---
 
