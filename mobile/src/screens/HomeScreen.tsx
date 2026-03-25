@@ -16,16 +16,20 @@ import { useVisitStore } from '../stores/visitStore';
 import { EventCard } from '../components/EventCard';
 import { LiveSnapshotCard } from '../components/LiveSnapshotCard';
 import { useBetslipStore } from '../stores/betslipStore';
-import type { RootStackParamList } from '../navigation/types';
+import type { MainTabParamList, RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-const QUICK_CHIPS: { emoji: string; label: string; screen: keyof RootStackParamList }[] = [
-  { emoji: '⚡', label: 'Odds altas', screen: 'IntentExplore' },
-  { emoji: '🔥', label: 'Ao vivo', screen: 'Live' },
-  { emoji: '⏰', label: 'Começando', screen: 'Explore' },
-  { emoji: '🎯', label: 'Mercados', screen: 'MarketExplorer' },
-  { emoji: '⭐', label: 'Favoritos', screen: 'Favorites' },
+type QuickChip =
+  | { emoji: string; label: string; target: 'tab'; screen: keyof MainTabParamList }
+  | { emoji: string; label: string; target: 'stack'; screen: 'IntentExplore' | 'MarketExplorer' | 'Favorites' };
+
+const QUICK_CHIPS: QuickChip[] = [
+  { emoji: '⚡', label: 'Odds altas', target: 'stack', screen: 'IntentExplore' },
+  { emoji: '🔥', label: 'Ao vivo', target: 'tab', screen: 'Live' },
+  { emoji: '⏰', label: 'Começando', target: 'tab', screen: 'Explore' },
+  { emoji: '🎯', label: 'Mercados', target: 'stack', screen: 'MarketExplorer' },
+  { emoji: '⭐', label: 'Favoritos', target: 'stack', screen: 'Favorites' },
 ];
 
 export function HomeScreen() {
@@ -73,7 +77,14 @@ export function HomeScreen() {
           <TouchableOpacity
             key={item.screen + item.label}
             style={styles.chip}
-            onPress={() => navigation.navigate(item.screen)}
+            onPress={() => {
+              if (item.target === 'tab') {
+                navigation.navigate('MainTabs', { screen: item.screen });
+                return;
+              }
+
+              navigation.navigate(item.screen);
+            }}
           >
             <Text style={styles.chipEmoji}>{item.emoji}</Text>
             <Text style={styles.chipLabel}>{item.label}</Text>
@@ -141,7 +152,7 @@ export function HomeScreen() {
       <SectionHeader
         title="Mais jogos ao vivo"
         actionLabel="Ver todos"
-        onAction={() => navigation.navigate('Live')}
+        onAction={() => navigation.navigate('MainTabs', { screen: 'Live' })}
       />
       {liveGridEvents.length > 0 ? (
         <View style={styles.grid}>
@@ -160,7 +171,7 @@ export function HomeScreen() {
       <SectionHeader
         title="Começando em breve"
         actionLabel="Explorar"
-        onAction={() => navigation.navigate('Explore')}
+        onAction={() => navigation.navigate('MainTabs', { screen: 'Explore' })}
       />
       <View style={styles.grid}>
         {mockUpcomingEvents.slice(0, 3).map((event) => (

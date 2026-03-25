@@ -1,15 +1,18 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
+import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { mockNotifications } from '@shared';
 import { HomeScreen } from '../screens/HomeScreen';
 import { LiveScreen } from '../screens/LiveScreen';
 import { ExploreScreen } from '../screens/ExploreScreen';
 import { BetsScreen } from '../screens/BetsScreen';
 import { AccountScreen } from '../screens/AccountScreen';
 import { useBetslipStore } from '../stores/betslipStore';
+import type { MainTabParamList, RootStackParamList } from './types';
 
-const Tab = createBottomTabNavigator();
+const Tab = createBottomTabNavigator<MainTabParamList>();
 
 function TabIcon({ icon, label }: { icon: string; label: string }) {
   return (
@@ -21,7 +24,7 @@ function TabIcon({ icon, label }: { icon: string; label: string }) {
 }
 
 export function MainTabs() {
-  const navigation = useNavigation<any>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const selections = useBetslipStore((s) => s.selections);
   const setOpen = useBetslipStore((s) => s.setOpen);
   const unreadCount = mockNotifications.filter((n) => !n.isRead).length;
@@ -82,6 +85,7 @@ export function MainTabs() {
           options={{
             title: 'Conta',
             tabBarLabel: 'Conta',
+            tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
             tabBarIcon: () => <TabIcon icon="👤" label="Conta" />,
           }}
         />
@@ -89,7 +93,10 @@ export function MainTabs() {
       {selections.length > 0 && (
         <TouchableOpacity
           style={styles.fab}
-          onPress={() => navigation.navigate('Betslip')}
+          onPress={() => {
+            setOpen(true);
+            navigation.navigate('Betslip');
+          }}
         >
           <Text style={styles.fabIcon}>📋</Text>
           <View style={styles.fabBadge}>
