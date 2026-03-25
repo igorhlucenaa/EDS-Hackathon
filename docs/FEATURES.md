@@ -1,4 +1,4 @@
-# Features Inovadoras — Hackathon Esportes da Sorte
+# Features — Hackathon Esportes da Sorte
 
 Este documento descreve as funcionalidades que diferenciam a plataforma de um sportsbook convencional: curadoria inteligente, experiência adaptativa e fluxos orientados à decisão do apostador.
 
