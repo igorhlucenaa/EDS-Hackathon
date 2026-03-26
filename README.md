@@ -38,3 +38,26 @@ Atalhos:
 
 - O projeto nao possui mais app web, Vite ou Capacitor.
 - O codigo de produto esta no app Expo em `mobile/`.
+- A camada de API publica (sem login) fica em `mobile/src/api/`.
+
+## API (sem login)
+
+Basepath padrao configurado:
+
+- `https://esportesdasorte.bet.br/api`
+
+Variaveis opcionais para ajustar runtime no Expo:
+
+- `EXPO_PUBLIC_API_BASEPATH`
+- `EXPO_PUBLIC_API_V2_BASEURL`
+- `EXPO_PUBLIC_API_DOMAIN`
+- `EXPO_PUBLIC_API_DEVICE`
+- `EXPO_PUBLIC_API_LANGUAGE_CODE`
+- `EXPO_PUBLIC_API_LANGUAGE_ID`
+- `EXPO_PUBLIC_API_TRADER_ID`
+- `EXPO_PUBLIC_API_REFERER`
+- `EXPO_PUBLIC_API_CUSTOM_ORIGIN`
+- `EXPO_PUBLIC_API_BRAGI_URL`
+- `EXPO_PUBLIC_API_TIMEOUT_MS`
+
+Endpoints de autenticacao/login nao foram conectados ainda, por solicitacao.
