@@ -1,47 +1,40 @@
-# Hackathon Esportes da Sorte — Plataforma (front-end)
+# SwiftBet Native
 
-Sportsbook em **React + Vite + TypeScript**, **Tailwind** e **shadcn/ui**. Dados de demonstração via mocks.
+Projeto mobile-only em **React Native + Expo**.
 
-## Scripts
+## Estrutura
 
-| Comando | Descrição |
-|--------|-----------|
-| `npm run dev` | Servidor de desenvolvimento (**porta 8080** — não use para Lighthouse) |
-| `npm run build` | Build de produção |
-| `npm run preview` | Preview do build (Vite; sem gzip HTTP) |
-| `npm run preview:compressed` | Build + servidor estático com **gzip** em `127.0.0.1:4173` |
-| `npm run preview:lighthouse` | Alias de `preview:compressed` — **use para auditar Performance** |
-| `npm run test` | Vitest |
-| `npm run lint` | ESLint |
+- `mobile/`: app React Native
+- `shared/`: tipos, mocks e utilitarios compartilhados
 
-## Lighthouse (Performance)
+## Requisitos
 
-Se o relatório mostra **FCP/LCP de dezenas de segundos**, **~5 MB transferidos**, **“minificar JavaScript”** e **“habilitar compressão”**, quase sempre a URL auditada é o **dev** (`http://localhost:8080` com `npm run dev`), não o build.
+- Node.js `20.19.4` ou superior
+- Android Studio para emulador Android
+- macOS + Xcode para simulador iOS
+- Ou celular fisico com Expo Go
 
-1. Pare o dev server.
-2. Rode **`npm run preview:lighthouse`** (ou `npm run preview:compressed`).
-3. No Chrome, **janela anônima** sem extensões.
-4. Abra **`http://127.0.0.1:4173/`** e rode o Lighthouse **nessa URL** (não na 8080).
+## Instalacao
 
-O script `preview-compressed` usa **Express + compressão HTTP**, como a maioria dos hosts em produção. O `vite preview` sozinho **não** envia `Content-Encoding: gzip`, e o Lighthouse continua a acusar “text compression”.
+```bash
+npm run setup
+```
 
-- **Fontes** (`Inter` + `Space Grotesk`): **@fontsource** no bundle (sem Google Fonts em runtime).
-- O build gera também **`.gz` / `.br`** em `dist/` para Nginx `gzip_static` ou equivalente.
-- **`preview-compressed`** envia **`Cache-Control: immutable`** em `/assets/*` (hashes) — melhora o audit de cache no Lighthouse.
-- A **home** carrega **Radar / Retomada** com `lazy` + `Suspense` e o **FAB** do layout usa **CSS** em vez de Framer — menos JS no caminho crítico.
+Esse comando instala as dependencias do app em `mobile/`.
 
-## Estrutura (resumo)
+## Rodando
 
-- `src/app/features/` — páginas por domínio (home, live, event, wallet, auth, …)
-- `src/app/premium/` — módulos premium (radar, copilot, retomada, pressão, intenções)
-- `src/app/state/` — Zustand (betslip, user, visita, auth, preferências, …)
-- `src/app/data/mocks/` — eventos, user, wallet, busca, insights
-- `docs/ARCHITECTURE.md` — notas de arquitetura
+```bash
+npm run dev
+```
 
-## Odds fora do `OddsCell`
+Atalhos:
 
-Botões rápidos (Radar, Intenções, Explorador) usam `src/lib/oddsQuickStyles.ts` para o estado **no cupom** alinhado ao CTA **Rápido** (`bg-primary`).
+- `npm run android`
+- `npm run ios`
+- `npm run typecheck`
 
-## Licença
+## Observacoes
 
-Projeto interno / demonstração.
+- O projeto nao possui mais app web, Vite ou Capacitor.
+- O codigo de produto esta no app Expo em `mobile/`.
