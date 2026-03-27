@@ -1,10 +1,13 @@
-# SwiftBet Native
+# 🎲 SwiftBet Platform
 
-Projeto mobile-only em **React Native + Expo**.
+Projeto mobile-only em **React Native + Expo** com **Mock Server Express.js** para desenvolvimento.
+
+> **NEW**: Mock server totalmente implementado com 23 endpoints! 🚀
 
 ## Estrutura
 
 - `mobile/`: app React Native
+- `mock-server/`: ⭐ Servidor mock Express (novo!)
 - `shared/`: tipos, mocks e utilitarios compartilhados
 
 ## Requisitos
@@ -24,6 +27,8 @@ Esse comando instala as dependencias do app em `mobile/`.
 
 ## Rodando
 
+### App Mobile
+
 ```bash
 npm run dev
 ```
@@ -33,6 +38,31 @@ Atalhos:
 - `npm run android`
 - `npm run ios`
 - `npm run typecheck`
+
+### 🚀 Mock Server (Novo!)
+
+Para desenvolvimento local com dados simulados:
+
+**Terminal 1 - Mock Server:**
+```bash
+cd mock-server
+npm install  # Primeira vez apenas
+npm start    # Inicia em localhost:3001
+```
+
+**Terminal 2 - App Mobile:**
+```bash
+npm run dev
+```
+
+**Teste os Endpoints:**
+Abra http://localhost:3001/test.html no navegador
+
+Para mais detalhes, veja:
+- [QUICK_START.md](./mock-server/QUICK_START.md) - Guia rápido (5 min)
+- [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md) - Guia para devs (10 min)
+- [MOCK_SERVER_SETUP.md](./MOCK_SERVER_SETUP.md) - Integração com app (15 min)
+- [TABLE_OF_CONTENTS.md](./TABLE_OF_CONTENTS.md) - Índice completo
 
 ## Observacoes
 

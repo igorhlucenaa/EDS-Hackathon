@@ -1,0 +1,134 @@
+// mobile/src/api/config.ts
+// Arquivo principal de configuração da API
+
+import { ENV_CONFIG } from './environment';
+
+/**
+ * IMPORTANTE: Este arquivo deve ser atualizado para usar a configuração do environment.ts
+ * 
+ * Substitua a linha:
+ *   export const DEFAULT_API_BASEPATH = '...';
+ * 
+ * Por:
+ *   export const DEFAULT_API_BASEPATH = ENV_CONFIG.API_BASEPATH;
+ */
+
+export const DEFAULT_API_BASEPATH = ENV_CONFIG.API_BASEPATH;
+export const API_TIMEOUT = ENV_CONFIG.API_TIMEOUT;
+export const ENABLE_LOGGING = ENV_CONFIG.ENABLE_LOGGING;
+export const DEBUG_MODE = ENV_CONFIG.DEBUG;
+
+/**
+ * Configurações da API padrão
+ */
+export const API_CONFIG = {
+  timeout: API_TIMEOUT,
+  headers: {
+    'Content-Type': 'application/json',
+    'User-Agent': 'SwiftBet/1.0',
+  },
+};
+
+/**
+ * Endpoints e versões
+ */
+export const API_ENDPOINTS = {
+  // Base paths
+  BASE: DEFAULT_API_BASEPATH,
+  API_V2: `${DEFAULT_API_BASEPATH}/api-v2`,
+  API_V1: `${DEFAULT_API_BASEPATH}/api`,
+
+  // Sports endpoints
+  SPORTS: {
+    TODAY_SPORTS: '/today-sport-types/{device}/{language}/{trader}',
+    LEFT_MENU: '/left-menu/{device}/{language}/{trader}',
+    ANTEPOST: '/antepost-summary/{device}/{language}/{trader}',
+  },
+
+  // Fixtures endpoints
+  FIXTURES: {
+    UPCOMING: '/upcoming-events/{device}/{language}/{trader}',
+    PROMOTED: '/promoted-events/{device}/{language}/{trader}',
+    POPULAR: '/popular-fixture/{device}/{language}/{trader}',
+    DETAIL: '/detail-card/{device}/{language}/{trader}',
+    SEARCH: '/fixture-search/{device}/{language}/{trader}',
+    LEAGUE: '/league-card/{device}/{language}/{trader}/{seasonIds}/{body}',
+  },
+
+  // Markets endpoints
+  MARKETS: {
+    BET_TYPE_GROUPS: '/bet-type-groups/{device}/{language}/{trader}',
+    MARKETS: '/markets/{fixtureId}',
+    GET_ODDS: '/get-odds',
+  },
+
+  // Config endpoints
+  CONFIG: {
+    APP_PARAMS: '/generic/getApplicationParameters/{domain}/{device}',
+    TRADER_DEFAULTS: '/generic/getTraderDefaults/{domain}/{device}',
+    TRADER_PAGES: '/generic/getTraderPages/{domain}/{device}/{language_id}',
+    SPORTS_BET_INFO: '/user/sportsBet/info',
+    BOOKING: '/generic/booking/bookabet',
+    FAVORITE_TEAMS: '/generic/getTraderFavoriteTeamList/{domain}/{device}',
+    CONTENT: '/generic/getContentByCode',
+  },
+};
+
+/**
+ * Parâmetros padrão para requisições
+ */
+export const DEFAULT_PARAMS = {
+  device: 'm', // 'm' = mobile, 'd' = desktop
+  language: '1', // 1 = pt-BR, 2 = en-US, etc...
+  trader: 'trader123', // ID do trader
+  domain: 'swiftbet', // Domínio da aplicação
+};
+
+/**
+ * Timeouts por tipo de requisição
+ */
+export const REQUEST_TIMEOUTS = {
+  DEFAULT: API_TIMEOUT,
+  SHORT: 3000, // Para requisições rápidas (health check)
+  LONG: 15000, // Para requisições lentas (cálculos complexos)
+};
+
+/**
+ * Configuração de retry
+ */
+export const RETRY_CONFIG = {
+  maxRetries: 3,
+  retryableStatusCodes: [408, 429, 500, 502, 503, 504],
+  backoffMultiplier: 1.5,
+  initialDelay: 1000, // ms
+};
+
+/**
+ * Logging
+ */
+export function logApiCall(method: string, path: string, data?: any): void {
+  if (ENABLE_LOGGING) {
+    console.log(`[API] ${method} ${path}`, data);
+  }
+}
+
+export function logApiResponse(path: string, response: any): void {
+  if (ENABLE_LOGGING && DEBUG_MODE) {
+    console.log(`[API Response] ${path}`, response);
+  }
+}
+
+export function logApiError(path: string, error: any): void {
+  console.error(`[API Error] ${path}`, error);
+}
+
+/**
+ * Valores padrão para simulação
+ */
+export const MOCK_VALUES = {
+  MIN_ODDS: 1.01,
+  MAX_ODDS: 100,
+  MIN_STAKE: 10,
+  MAX_STAKE: 10000,
+  ODDS_VARIATION: 0.3, // ±0.3
+};
