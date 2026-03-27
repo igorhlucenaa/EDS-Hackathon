@@ -202,9 +202,18 @@ export function useBetCalculator() {
     return isNaN(parsed) ? 0 : parsed;
   }, []);
 
+  const calculateReturn = React.useCallback(
+    (stake: number, totalOdds: number): number => {
+      if (stake <= 0 || totalOdds <= 0) return 0;
+      return stake * totalOdds;
+    },
+    []
+  );
+
   return {
     calculatePotentialWin,
     calculateTotalOdds,
+    calculateReturn,
     parseOdds,
   };
 }
