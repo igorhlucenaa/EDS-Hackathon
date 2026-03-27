@@ -41,8 +41,13 @@ function parseTimeout(value: string): number {
 }
 
 const DEFAULT_API_BASEPATH = 'https://esportesdasorte.bet.br/api';
+const DEFAULT_API_V2_BASEPATH = 'https://esportesdasorte.bet.br/api-v2';
+
 const apiBasePath = normalizeBaseUrl(
   readEnv('EXPO_PUBLIC_API_BASEPATH', DEFAULT_API_BASEPATH)
+);
+const apiV2BasePath = normalizeBaseUrl(
+  readEnv('EXPO_PUBLIC_API_V2_BASEPATH', DEFAULT_API_V2_BASEPATH)
 );
 const apiOrigin = deriveApiOrigin(apiBasePath);
 const fallbackDomain = getHostname(apiOrigin, 'esportesdasorte.bet.br');
@@ -67,9 +72,7 @@ export interface ApiRuntimeConfig extends PublicApiContext {
 
 export const apiConfig: ApiRuntimeConfig = {
   apiBasePath,
-  apiV2BaseUrl: normalizeBaseUrl(
-    readEnv('EXPO_PUBLIC_API_V2_BASEURL', `${apiOrigin}/api-v2`)
-  ),
+  apiV2BaseUrl: apiV2BasePath,
   domain,
   device: readEnv('EXPO_PUBLIC_API_DEVICE', 'mobile') as ApiDevice,
   languageCode: readEnv('EXPO_PUBLIC_API_LANGUAGE_CODE', 'pt'),
