@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "SwiftBet Native",
+    "slug": "swiftbet-native",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "platforms": ["ios", "android"],
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#ffffff"
+    },
+    "scheme": "swiftbet",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.swiftbet.app",
+      "associatedDomains": ["applinks:swiftbet.app"]
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "predictiveBackGestureEnabled": false,
+      "package": "com.swiftbet.app",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "swiftbet",
+              "host": "*"
+            },
+            {
+              "scheme": "https",
+              "host": "swiftbet.app",
+              "pathPrefix": "/shared-bet"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
+    }
+  }
+}

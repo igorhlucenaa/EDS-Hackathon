@@ -1,47 +1,93 @@
-# Hackathon Esportes da Sorte — Plataforma (front-end)
+# 🎲 SwiftBet Platform
 
-Sportsbook em **React + Vite + TypeScript**, **Tailwind** e **shadcn/ui**. Dados de demonstração via mocks.
+Projeto mobile-only em **React Native + Expo** com **Mock Server Express.js** para desenvolvimento.
 
-## Scripts
+> **NEW**: Mock server totalmente implementado com 23 endpoints! 🚀
 
-| Comando | Descrição |
-|--------|-----------|
-| `npm run dev` | Servidor de desenvolvimento (**porta 8080** — não use para Lighthouse) |
-| `npm run build` | Build de produção |
-| `npm run preview` | Preview do build (Vite; sem gzip HTTP) |
-| `npm run preview:compressed` | Build + servidor estático com **gzip** em `127.0.0.1:4173` |
-| `npm run preview:lighthouse` | Alias de `preview:compressed` — **use para auditar Performance** |
-| `npm run test` | Vitest |
-| `npm run lint` | ESLint |
+## Estrutura
 
-## Lighthouse (Performance)
+- `mobile/`: app React Native
+- `mock-server/`: ⭐ Servidor mock Express (novo!)
+- `shared/`: tipos, mocks e utilitarios compartilhados
 
-Se o relatório mostra **FCP/LCP de dezenas de segundos**, **~5 MB transferidos**, **“minificar JavaScript”** e **“habilitar compressão”**, quase sempre a URL auditada é o **dev** (`http://localhost:8080` com `npm run dev`), não o build.
+## Requisitos
 
-1. Pare o dev server.
-2. Rode **`npm run preview:lighthouse`** (ou `npm run preview:compressed`).
-3. No Chrome, **janela anônima** sem extensões.
-4. Abra **`http://127.0.0.1:4173/`** e rode o Lighthouse **nessa URL** (não na 8080).
+- Node.js `20.19.4` ou superior
+- Android Studio para emulador Android
+- macOS + Xcode para simulador iOS
+- Ou celular fisico com Expo Go
 
-O script `preview-compressed` usa **Express + compressão HTTP**, como a maioria dos hosts em produção. O `vite preview` sozinho **não** envia `Content-Encoding: gzip`, e o Lighthouse continua a acusar “text compression”.
+## Instalacao
 
-- **Fontes** (`Inter` + `Space Grotesk`): **@fontsource** no bundle (sem Google Fonts em runtime).
-- O build gera também **`.gz` / `.br`** em `dist/` para Nginx `gzip_static` ou equivalente.
-- **`preview-compressed`** envia **`Cache-Control: immutable`** em `/assets/*` (hashes) — melhora o audit de cache no Lighthouse.
-- A **home** carrega **Radar / Retomada** com `lazy` + `Suspense` e o **FAB** do layout usa **CSS** em vez de Framer — menos JS no caminho crítico.
+```bash
+npm run setup
+```
 
-## Estrutura (resumo)
+Esse comando instala as dependencias do app em `mobile/`.
 
-- `src/app/features/` — páginas por domínio (home, live, event, wallet, auth, …)
-- `src/app/premium/` — módulos premium (radar, copilot, retomada, pressão, intenções)
-- `src/app/state/` — Zustand (betslip, user, visita, auth, preferências, …)
-- `src/app/data/mocks/` — eventos, user, wallet, busca, insights
-- `docs/ARCHITECTURE.md` — notas de arquitetura
+## Rodando
 
-## Odds fora do `OddsCell`
+### App Mobile
 
-Botões rápidos (Radar, Intenções, Explorador) usam `src/lib/oddsQuickStyles.ts` para o estado **no cupom** alinhado ao CTA **Rápido** (`bg-primary`).
+```bash
+npm run dev
+```
 
-## Licença
+Atalhos:
 
-Projeto interno / demonstração.
+- `npm run android`
+- `npm run ios`
+- `npm run typecheck`
+
+### 🚀 Mock Server (Novo!)
+
+Para desenvolvimento local com dados simulados:
+
+**Terminal 1 - Mock Server:**
+```bash
+cd mock-server
+npm install  # Primeira vez apenas
+npm start    # Inicia em localhost:3001
+```
+
+**Terminal 2 - App Mobile:**
+```bash
+npm run dev
+```
+
+**Teste os Endpoints:**
+Abra http://localhost:3001/test.html no navegador
+
+Para mais detalhes, veja:
+- [QUICK_START.md](./mock-server/QUICK_START.md) - Guia rápido (5 min)
+- [DEVELOPER_GUIDE.md](./DEVELOPER_GUIDE.md) - Guia para devs (10 min)
+- [MOCK_SERVER_SETUP.md](./MOCK_SERVER_SETUP.md) - Integração com app (15 min)
+- [TABLE_OF_CONTENTS.md](./TABLE_OF_CONTENTS.md) - Índice completo
+
+## Observacoes
+
+- O projeto nao possui mais app web, Vite ou Capacitor.
+- O codigo de produto esta no app Expo em `mobile/`.
+- A camada de API publica (sem login) fica em `mobile/src/api/`.
+
+## API (sem login)
+
+Basepath padrao configurado:
+
+- `https://esportesdasorte.bet.br/api`
+
+Variaveis opcionais para ajustar runtime no Expo:
+
+- `EXPO_PUBLIC_API_BASEPATH`
+- `EXPO_PUBLIC_API_V2_BASEURL`
+- `EXPO_PUBLIC_API_DOMAIN`
+- `EXPO_PUBLIC_API_DEVICE`
+- `EXPO_PUBLIC_API_LANGUAGE_CODE`
+- `EXPO_PUBLIC_API_LANGUAGE_ID`
+- `EXPO_PUBLIC_API_TRADER_ID`
+- `EXPO_PUBLIC_API_REFERER`
+- `EXPO_PUBLIC_API_CUSTOM_ORIGIN`
+- `EXPO_PUBLIC_API_BRAGI_URL`
+- `EXPO_PUBLIC_API_TIMEOUT_MS`
+
+Endpoints de autenticacao/login nao foram conectados ainda, por solicitacao.
