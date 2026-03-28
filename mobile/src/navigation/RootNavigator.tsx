@@ -13,7 +13,7 @@ import { PromotionsScreen } from '../screens/PromotionsScreen';
 import { WalletScreen } from '../screens/WalletScreen';
 import { DepositScreen } from '../screens/DepositScreen';
 import { WithdrawScreen } from '../screens/WithdrawScreen';
-import { NotificationsScreen } from '../screens/NotificationsScreen';
+import { NotificationCenterScreen } from '../screens/NotificationCenterScreen';
 import { PreferencesScreen } from '../screens/PreferencesScreen';
 import { HelpScreen } from '../screens/HelpScreen';
 import { MarketExplorerScreen } from '../screens/MarketExplorerScreen';
@@ -122,8 +122,8 @@ export function RootNavigator() {
             />
             <Stack.Screen
               name="Notifications"
-              component={NotificationsScreen}
-              options={{ title: 'Notificacoes' }}
+              component={NotificationCenterScreen}
+              options={{ headerShown: false }}
             />
             <Stack.Screen
               name="Preferences"
