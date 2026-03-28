@@ -1066,6 +1066,3 @@ Isso torna o projeto excelente para iteração rápida de produto, mas também i
 
 ---
 
-## Conclusão
-
-A arquitetura do projeto já está bem dividida por camadas e responsabilidades. O ponto mais importante agora não é reorganizar tudo, mas consolidar o caminho principal de dados para sustentar a próxima fase do produto: uma nova experiência mobile de apostas esportivas com base técnica consistente.
