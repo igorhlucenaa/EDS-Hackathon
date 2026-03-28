@@ -10,6 +10,8 @@ import { ExploreScreen } from '../screens/ExploreScreen';
 import { BetsScreen } from '../screens/BetsScreen';
 import { AccountScreen } from '../screens/AccountScreen';
 import { useBetslipStore } from '../stores/betslipStore';
+import { useUnreadNotificationsCount } from '../hooks/useNotifications';
+import { NotificationBadge } from '../components/notifications/NotificationBadge';
 import type { MainTabParamList, RootStackParamList } from './types';
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
@@ -27,7 +29,7 @@ export function MainTabs() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const selections = useBetslipStore((s) => s.selections);
   const setOpen = useBetslipStore((s) => s.setOpen);
-  const unreadCount = mockNotifications.filter((n) => !n.isRead).length;
+  const notificationUnreadCount = useUnreadNotificationsCount();
 
   return (
     <>
@@ -53,6 +55,15 @@ export function MainTabs() {
                 style={{ width: 160, height: 40 }}
                 resizeMode="contain"
               />
+            ),
+            headerRight: () => (
+              <TouchableOpacity
+                style={styles.notificationButton}
+                onPress={() => navigation.navigate('Notifications')}
+              >
+                <Text style={styles.notificationIcon}>🔔</Text>
+                <NotificationBadge size="small" />
+              </TouchableOpacity>
             ),
             tabBarLabel: 'Home',
             tabBarIcon: ({ focused }) => (
@@ -93,7 +104,7 @@ export function MainTabs() {
           options={{
             title: 'Conta',
             tabBarLabel: 'Conta',
-            tabBarBadge: unreadCount > 0 ? unreadCount : undefined,
+            tabBarBadge: notificationUnreadCount > 0 ? notificationUnreadCount : undefined,
             tabBarIcon: () => <TabIcon icon="👤" label="Conta" />,
           }}
         />
@@ -149,4 +160,15 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   fabBadgeText: { fontSize: 10, fontWeight: '700', color: '#fff' },
+  notificationButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
+  },
+  notificationIcon: {
+    fontSize: 20,
+  },
 });
