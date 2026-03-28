@@ -1,15 +1,21 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { mockLiveEvents } from '@shared';
 import { LiveSnapshotCard } from '../components/LiveSnapshotCard';
+import { useMissionTracking } from '../hooks/useMissions';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 export function LiveScreen() {
   const navigation = useNavigation<Nav>();
+  const { trackVisitLive } = useMissionTracking();
+
+  useEffect(() => {
+    trackVisitLive();
+  }, [trackVisitLive]);
 
   return (
     <ScrollView
