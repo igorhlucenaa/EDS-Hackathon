@@ -71,8 +71,9 @@ export function BetslipScreen() {
         fixture: selections.map(s => `${s.event?.home?.name || ''} vs ${s.event?.away?.name || ''}`).join(', '),
         selections: selections.map(s => ({
           id: s.outcomeId,
-          market: s.marketName,
-          outcome: s.outcomeName,
+          outcomeName: s.outcomeName,
+          marketName: s.marketName,
+          eventName: `${s.event?.home?.name || ''} vs ${s.event?.away?.name || ''}`,
           odds: s.odds,
           eventId: s.eventId,
         })),

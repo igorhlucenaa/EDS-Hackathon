@@ -47,7 +47,7 @@ export function MainTabs() {
           name="Home"
           component={HomeScreen}
           options={{
-            title: 'SwiftBet',
+            title: 'Esportes da Sorte',
             tabBarLabel: 'Home',
             tabBarIcon: ({ focused }) => (
               <TabIcon icon="🏠" label="Home" />

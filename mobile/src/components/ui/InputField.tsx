@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TextInputProps,
 } from 'react-native';
+import { semanticColors, brandColors, radius, spacing, typography } from '../../theme';
 
 type InputType = 'text' | 'cpf' | 'phone' | 'email' | 'password';
 
@@ -137,61 +138,71 @@ export function InputField({
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: spacing[4],
   },
   labelRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: spacing[2],
   },
   label: {
-    color: '#fafafa',
-    fontSize: 14,
-    fontWeight: '600',
+    color: semanticColors.text.secondary,
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
+    fontFamily: typography.fontFamily.sans,
   },
   required: {
-    color: '#ef4444',
+    color: semanticColors.state.error,
   },
   hint: {
-    color: '#737373',
-    fontSize: 12,
+    color: semanticColors.text.tertiary,
+    fontSize: typography.fontSize.xs,
+    fontFamily: typography.fontFamily.sans,
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#171717',
-    borderRadius: 14,
+    backgroundColor: semanticColors.surface.default,
+    borderRadius: radius.lg,
     borderWidth: 1,
-    borderColor: 'rgba(38, 38, 38, 0.5)',
-    paddingHorizontal: 14,
+    borderColor: semanticColors.border.default,
+    paddingHorizontal: spacing[4],
     height: 52,
   },
   inputContainerFocused: {
-    borderColor: '#22c55e',
-    backgroundColor: '#1a1a1a',
+    borderColor: brandColors.green[400],
+    backgroundColor: semanticColors.surface.pressed,
+    shadowColor: brandColors.green[400],
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    elevation: 2,
   },
   inputContainerError: {
-    borderColor: '#ef4444',
+    borderColor: semanticColors.state.error,
     backgroundColor: 'rgba(239, 68, 68, 0.05)',
   },
   input: {
     flex: 1,
-    color: '#fafafa',
-    fontSize: 15,
+    color: semanticColors.text.primary,
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.sans,
     height: '100%',
   },
   eyeButton: {
-    padding: 4,
-    marginLeft: 8,
+    padding: spacing[1],
+    marginLeft: spacing[2],
   },
   eyeIcon: {
     fontSize: 18,
+    color: semanticColors.text.tertiary,
   },
   errorText: {
-    color: '#ef4444',
-    fontSize: 12,
-    marginTop: 6,
-    fontWeight: '500',
+    color: semanticColors.state.error,
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing[2],
+    fontWeight: typography.fontWeight.medium,
+    fontFamily: typography.fontFamily.sans,
   },
 });
