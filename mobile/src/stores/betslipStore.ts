@@ -3,6 +3,17 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { BetSelection, BetslipMode, BetType } from '@shared';
 
+export interface SharedBet {
+  id: string;
+  code: string;
+  selections: BetSelection[];
+  stake: number;
+  totalOdds: number;
+  potentialReturn: number;
+  createdAt: string;
+  createdBy?: string;
+}
+
 interface BetslipStore {
   selections: BetSelection[];
   stake: number;
@@ -22,6 +33,13 @@ interface BetslipStore {
   totalOdds: () => number;
   potentialReturn: () => number;
   hasSelection: (outcomeId: string) => boolean;
+
+  // Compartilhamento de bilhetes
+  sharedBets: SharedBet[];
+  generateBetCode: () => string;
+  saveSharedBet: (bet: Omit<SharedBet, 'id' | 'createdAt'>) => SharedBet;
+  getSharedBetByCode: (code: string) => SharedBet | undefined;
+  removeSharedBet: (id: string) => void;
 }
 
 export const useBetslipStore = create<BetslipStore>()(
@@ -67,11 +85,47 @@ export const useBetslipStore = create<BetslipStore>()(
 
       hasSelection: (outcomeId) =>
         get().selections.some((s) => s.outcomeId === outcomeId),
+
+      sharedBets: [],
+
+      generateBetCode: () => {
+        const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+        let code = '';
+        for (let i = 0; i < 8; i++) {
+          code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+      },
+
+      saveSharedBet: (betData) => {
+        const code = get().generateBetCode();
+        const bet: SharedBet = {
+          ...betData,
+          id: `shared-${Date.now()}`,
+          code,
+          createdAt: new Date().toISOString(),
+        };
+        set((s) => ({ sharedBets: [bet, ...s.sharedBets] }));
+        return bet;
+      },
+
+      getSharedBetByCode: (code) => {
+        return get().sharedBets.find((b) => b.code === code);
+      },
+
+      removeSharedBet: (id) =>
+        set((s) => ({ sharedBets: s.sharedBets.filter((b) => b.id !== id) })),
     }),
     {
       name: 'eds-betslip',
       storage: createJSONStorage(() => AsyncStorage),
-      partialize: (s) => ({ selections: s.selections, stake: s.stake, mode: s.mode, betType: s.betType }),
+      partialize: (s) => ({ 
+        selections: s.selections, 
+        stake: s.stake, 
+        mode: s.mode, 
+        betType: s.betType,
+        sharedBets: s.sharedBets,
+      }),
     }
   )
 );

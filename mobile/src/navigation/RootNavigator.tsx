@@ -1,5 +1,5 @@
 import React from 'react';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useNavigationContainerRef } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { MainTabs } from './MainTabs';
 import { EventScreen } from '../screens/EventScreen';
@@ -17,6 +17,7 @@ import { NotificationsScreen } from '../screens/NotificationsScreen';
 import { PreferencesScreen } from '../screens/PreferencesScreen';
 import { HelpScreen } from '../screens/HelpScreen';
 import { MarketExplorerScreen } from '../screens/MarketExplorerScreen';
+import { SharedBetScreen } from '../screens/SharedBetScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
@@ -138,6 +139,11 @@ export function RootNavigator() {
               name="MarketExplorer"
               component={MarketExplorerScreen}
               options={{ title: 'Mercados' }}
+            />
+            <Stack.Screen
+              name="SharedBet"
+              component={SharedBetScreen}
+              options={{ title: 'Bilhete Compartilhado' }}
             />
           </>
         )}

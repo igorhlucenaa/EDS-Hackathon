@@ -7,6 +7,7 @@ const sportsRoutes = require('./routes/sports');
 const fixturesRoutes = require('./routes/fixtures');
 const marketsRoutes = require('./routes/markets');
 const configRoutes = require('./routes/config');
+const sharedBetsRoutes = require('./routes/sharedBets');
 
 const app = express();
 let PORT = parseInt(process.env.PORT) || 3001;
@@ -35,6 +36,7 @@ app.use('/api-v2', sportsRoutes);
 app.use('/api-v2', fixturesRoutes);
 app.use('/api-v2', marketsRoutes);
 app.use('/api', configRoutes);
+app.use('/api/shared-bets', sharedBetsRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

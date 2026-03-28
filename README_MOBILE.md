@@ -23,7 +23,8 @@ Uma plataforma de apostas esportivas completa em React Native com integração r
 #### **FASE 3: Integração de Telas ✅**
 - ✅ **ExploreScreen**: Esportes + eventos com filtro interativo
 - ✅ **EventScreen**: Detalhes do jogo + mercados + odds em tempo real
-- ✅ **BetslipScreen**: Carrinho de apostas + cálculos + confirmação
+- ✅ **BetslipScreen**: Carrinho de apostas + cálculos + confirmação + **compartilhamento de bilhetes**
+- ✅ **SharedBetScreen**: Buscar e visualizar bilhetes compartilhados
 - ✅ Todas integradas com dados reais da Football Data API
 
 #### **FASE 4: Documentação e Exemplos ✅**
@@ -95,12 +96,19 @@ Deve retornar lista de esportes (Futebol, Basquete, etc).
    ↓
    [Vê seleções, calcula retorno]
    [Insere valor da aposta]
+   [🔥 NOVO: Compartilha bilhete com amigos]
    [Clica "Apostar"]
    ↓
 4. Confirmação
    ↓
    ✅ Aposta registrada no servidor
    [ID da aposta exibido]
+   ↓
+5. SharedBetScreen (opcional)
+   ↓
+   [Busca bilhete por código]
+   [Visualiza seleções de amigos]
+   [Copia para próprio cupom]
 ```
 
 ---
@@ -120,6 +128,7 @@ Deve retornar lista de esportes (Futebol, Basquete, etc).
 | `usePlaceBet()` | Colocar aposta | ✅ |
 | `useBetHistory()` | Histórico de apostas | ✅ |
 | `useBetCalculator()` | Calcular odds e retorno | ✅ |
+| `useShareBet()` | Compartilhar bilhete | ✅ |
 
 ---
 

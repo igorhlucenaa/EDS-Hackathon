@@ -29,6 +29,7 @@ export type RootStackParamList = {
   Preferences: TitledRouteParams | undefined;
   Help: TitledRouteParams | undefined;
   MarketExplorer: TitledRouteParams | undefined;
+  SharedBet: { code?: string } | undefined;
   Login: undefined;
   Register: undefined;
   Onboarding: undefined;

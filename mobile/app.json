@@ -12,8 +12,11 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
+    "scheme": "swiftbet",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.swiftbet.app",
+      "associatedDomains": ["applinks:swiftbet.app"]
     },
     "android": {
       "adaptiveIcon": {
@@ -22,7 +25,26 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.swiftbet.app",
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "swiftbet",
+              "host": "*"
+            },
+            {
+              "scheme": "https",
+              "host": "swiftbet.app",
+              "pathPrefix": "/shared-bet"
+            }
+          ],
+          "category": ["BROWSABLE", "DEFAULT"]
+        }
+      ]
     }
   }
 }

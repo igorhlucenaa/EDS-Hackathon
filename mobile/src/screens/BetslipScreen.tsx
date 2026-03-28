@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useBetslipStore } from '../stores/betslipStore';
-import { usePlaceBet, useBetCalculator } from '../hooks';
+import { usePlaceBet, useBetCalculator, useShareBet } from '../hooks';
 
 export function BetslipScreen() {
   const navigation = useNavigation();
@@ -25,8 +25,11 @@ export function BetslipScreen() {
   // Hook para colocar aposta
   const { placeBet, loading: placingBet } = usePlaceBet();
 
+  // Hook para compartilhamento
+  const { shareCurrentBet, copyBetCode } = useShareBet();
+
   // Calcular odds e retorno
-  const totalOdds = calculateTotalOdds(selections.map((s) => s.odds));
+  const totalOdds = calculateTotalOdds(selections.map((s) => ({ odds: s.odds })));
   const potentialReturn = calculateReturn(stake, totalOdds);
 
   const handlePlaceBet = async () => {
@@ -53,10 +56,17 @@ export function BetslipScreen() {
         expectedReturn: potentialReturn,
       });
 
-      Alert.alert(
-        '✅ Aposta realizada!',
-        `Seu cupom #${result.betId} foi registrado.\nRetorno potencial: R$ ${potentialReturn.toFixed(2)}`
-      );
+      if (result && result.betId) {
+        Alert.alert(
+          '✅ Aposta realizada!',
+          `Seu cupom #${result.betId} foi registrado.\nRetorno potencial: R$ ${potentialReturn.toFixed(2)}`
+        );
+      } else {
+        Alert.alert(
+          '✅ Aposta realizada!',
+          `Seu cupom foi registrado.\nRetorno potencial: R$ ${potentialReturn.toFixed(2)}`
+        );
+      }
 
       clearSelections();
       setStake(10);
@@ -117,6 +127,24 @@ export function BetslipScreen() {
             </TouchableOpacity>
           </View>
         ))}
+
+        {/* Botões de Ação */}
+        <View style={styles.actionButtons}>
+          <TouchableOpacity style={styles.shareBtn} onPress={shareCurrentBet}>
+            <Text style={styles.shareBtnText}>🔗 Compartilhar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.codeBtn} onPress={copyBetCode}>
+            <Text style={styles.codeBtnText}>📋 Gerar Código</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Buscar bilhetes compartilhados */}
+        <TouchableOpacity
+          style={styles.findSharedBtn}
+          onPress={() => (navigation as any).navigate('SharedBet')}
+        >
+          <Text style={styles.findSharedBtnText}>🔍 Buscar bilhete de amigo</Text>
+        </TouchableOpacity>
 
         {/* Apagador de Cupom */}
         <TouchableOpacity onPress={clearSelections} style={styles.clearBtn}>
@@ -300,6 +328,59 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#ff0000',
     fontWeight: '500',
+  },
+  actionButtons: {
+    flexDirection: 'row',
+    marginTop: 16,
+    marginBottom: 12,
+  },
+  shareBtn: {
+    backgroundColor: '#1a1a1a',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#00ff00',
+    flex: 1,
+    marginRight: 8,
+  },
+  shareBtnText: {
+    color: '#00ff00',
+    fontWeight: 'bold',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  codeBtn: {
+    backgroundColor: '#1a1a1a',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#888',
+    flex: 1,
+    marginLeft: 8,
+  },
+  codeBtnText: {
+    color: '#888',
+    fontWeight: 'bold',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  findSharedBtn: {
+    backgroundColor: '#0a0a0a',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#333',
+    marginTop: 8,
+    marginBottom: 12,
+  },
+  findSharedBtnText: {
+    color: '#888',
+    fontWeight: '500',
+    fontSize: 13,
+    textAlign: 'center',
   },
   footer: {
     padding: 16,
