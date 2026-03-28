@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { usePreferencesStore } from '../stores/preferencesStore';
 import { useSearchHistoryStore } from '../stores/searchHistoryStore';
-import { useUserStore } from '../stores/userStore';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -17,8 +16,6 @@ export function PreferencesScreen() {
   const pushEventStart = usePreferencesStore((s) => s.pushEventStart);
   const emailWeekly = usePreferencesStore((s) => s.emailWeekly);
   const compactOdds = usePreferencesStore((s) => s.compactOdds);
-  const experienceMode = useUserStore((s) => s.experienceMode);
-  const setExperienceMode = useUserStore((s) => s.setExperienceMode);
   const recentQueries = useSearchHistoryStore((s) => s.recentQueries);
   const clearRecent = useSearchHistoryStore((s) => s.clear);
 
@@ -33,31 +30,6 @@ export function PreferencesScreen() {
         <Text style={styles.subtitle}>
           Ajuste o jeito como o app nativo apresenta informacoes e alertas.
         </Text>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Modo de experiencia</Text>
-        <View style={styles.modeRow}>
-          {(['beginner', 'pro'] as const).map((mode) => {
-            const active = experienceMode === mode;
-            return (
-              <TouchableOpacity
-                key={mode}
-                style={[styles.modeCard, active && styles.modeCardActive]}
-                onPress={() => setExperienceMode(mode)}
-              >
-                <Text style={[styles.modeTitle, active && styles.modeTitleActive]}>
-                  {mode === 'pro' ? 'Pro' : 'Iniciante'}
-                </Text>
-                <Text style={styles.modeSubtitle}>
-                  {mode === 'pro'
-                    ? 'Mais densidade de mercado e leitura rapida.'
-                    : 'Fluxo guiado com menos ruido visual.'}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
       </View>
 
       <View style={styles.section}>
@@ -165,21 +137,6 @@ const styles = StyleSheet.create({
   subtitle: { color: '#737373', fontSize: 13, lineHeight: 20 },
   section: { marginBottom: 20 },
   sectionTitle: { color: '#fafafa', fontSize: 16, fontWeight: '700', marginBottom: 10 },
-  modeRow: { gap: 10 },
-  modeCard: {
-    backgroundColor: '#171717',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(38, 38, 38, 0.5)',
-  },
-  modeCardActive: {
-    backgroundColor: 'rgba(34, 197, 94, 0.08)',
-    borderColor: 'rgba(34, 197, 94, 0.35)',
-  },
-  modeTitle: { color: '#fafafa', fontSize: 15, fontWeight: '700', marginBottom: 4 },
-  modeTitleActive: { color: '#22c55e' },
-  modeSubtitle: { color: '#a3a3a3', fontSize: 12, lineHeight: 18 },
   panel: {
     backgroundColor: '#171717',
     borderRadius: 16,

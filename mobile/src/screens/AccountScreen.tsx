@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { mockNotifications, mockUser } from '@shared';
 import { useAuthStore } from '../stores/authStore';
-import { useUserStore } from '../stores/userStore';
 import type { RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
@@ -69,7 +68,6 @@ const menuItems: Array<{
 export function AccountScreen() {
   const navigation = useNavigation<Nav>();
   const unreadCount = mockNotifications.filter((item) => !item.isRead).length;
-  const experienceMode = useUserStore((s) => s.experienceMode);
   const setAuthenticated = useAuthStore((s) => s.setAuthenticated);
   const startOnboarding = useAuthStore((s) => s.startOnboarding);
 
@@ -88,11 +86,6 @@ export function AccountScreen() {
         <Text style={styles.name}>{mockUser.name}</Text>
         <Text style={styles.email}>{mockUser.email}</Text>
         <View style={styles.metaRow}>
-          <View style={styles.pill}>
-            <Text style={styles.pillText}>
-              Modo {experienceMode === 'pro' ? 'Pro' : 'Iniciante'}
-            </Text>
-          </View>
           {unreadCount > 0 && (
             <View style={styles.pill}>
               <Text style={styles.pillText}>{unreadCount} alertas novos</Text>

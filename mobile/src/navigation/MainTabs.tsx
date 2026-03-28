@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -47,7 +47,13 @@ export function MainTabs() {
           name="Home"
           component={HomeScreen}
           options={{
-            title: 'Esportes da Sorte',
+            headerTitle: () => (
+              <Image
+                source={require('../../assets/logos/logo-white-c.png')}
+                style={{ width: 160, height: 40 }}
+                resizeMode="contain"
+              />
+            ),
             tabBarLabel: 'Home',
             tabBarIcon: ({ focused }) => (
               <TabIcon icon="🏠" label="Home" />
