@@ -8,6 +8,7 @@ const fixturesRoutes = require('./routes/fixtures');
 const marketsRoutes = require('./routes/markets');
 const configRoutes = require('./routes/config');
 const missionsRoutes = require('./routes/missions');
+const cashoutRoutes = require('./routes/cashout');
 
 const app = express();
 let PORT = parseInt(process.env.PORT) || 3001;
@@ -37,6 +38,7 @@ app.use('/api-v2', fixturesRoutes);
 app.use('/api-v2', marketsRoutes);
 app.use('/api', configRoutes);
 app.use('/api-v2', missionsRoutes);
+app.use('/api-v2', cashoutRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {
