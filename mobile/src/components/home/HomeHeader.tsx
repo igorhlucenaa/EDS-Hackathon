@@ -1,6 +1,5 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-import { useUserStore } from '../../stores/userStore';
 import { getGreeting, getContextualSubtitle, type HomeContextState } from '../../hooks/useHomeContext';
 import { brandColors, semanticColors, spacing, typography, radius } from '../../theme';
 
@@ -10,7 +9,6 @@ interface HomeHeaderProps {
 }
 
 export function HomeHeader({ context, onMissionPress }: HomeHeaderProps) {
-  const experienceMode = useUserStore((s: { experienceMode: string }) => s.experienceMode);
   const greeting = getGreeting();
   const subtitle = getContextualSubtitle(context);
 

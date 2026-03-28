@@ -1,13 +1,19 @@
 import React from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet, Switch } from 'react-native';
+import {
+  ScrollView,
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  Switch,
+  Image,
+} from 'react-native';
 import { useAuthStore } from '../stores/authStore';
 import { usePreferencesStore } from '../stores/preferencesStore';
-import { useUserStore } from '../stores/userStore';
+import { brandColors, semanticColors, spacing, typography, radius } from '../theme';
 
 export function OnboardingScreen() {
   const completeOnboarding = useAuthStore((s) => s.completeOnboarding);
-  const experienceMode = useUserStore((s) => s.experienceMode);
-  const setExperienceMode = useUserStore((s) => s.setExperienceMode);
   const pushBetResults = usePreferencesStore((s) => s.pushBetResults);
   const pushEventStart = usePreferencesStore((s) => s.pushEventStart);
   const updatePrefs = usePreferencesStore((s) => s.updatePrefs);
@@ -18,60 +24,55 @@ export function OnboardingScreen() {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      <View style={styles.hero}>
-        <Text style={styles.eyebrow}>Onboarding nativo</Text>
-        <Text style={styles.title}>Personalize sua experiencia</Text>
-        <Text style={styles.subtitle}>
-          Ajustes iniciais para entrar no app com o fluxo mais adequado.
+      {/* Logo */}
+      <View style={styles.logoContainer}>
+        <Image
+          source={require('../../assets/logos/logo-white-c.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
+      </View>
+
+      {/* Headline */}
+      <View style={styles.headlineSection}>
+        <Text style={styles.headline}>Tudo pronto para começar</Text>
+        <Text style={styles.subheadline}>
+          Entre no app com uma experiência rápida. Ajuste o restante quando quiser nas configurações.
         </Text>
       </View>
 
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Como voce prefere navegar?</Text>
-        <View style={styles.stack}>
-          {(['beginner', 'pro'] as const).map((mode) => {
-            const active = experienceMode === mode;
-            return (
-              <TouchableOpacity
-                key={mode}
-                style={[styles.card, active && styles.cardActive]}
-                onPress={() => setExperienceMode(mode)}
-              >
-                <Text style={[styles.cardTitle, active && styles.cardTitleActive]}>
-                  {mode === 'pro' ? 'Modo Pro' : 'Modo Iniciante'}
-                </Text>
-                <Text style={styles.cardDescription}>
-                  {mode === 'pro'
-                    ? 'Mais informacao por tela e leitura rapida de mercados.'
-                    : 'Jornada guiada para descobrir jogos e apostar com calma.'}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </View>
-
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>Alertas importantes</Text>
-        <View style={styles.panel}>
+      {/* Preferences Card */}
+      <View style={styles.preferencesCard}>
+        <Text style={styles.preferencesTitle}>Preferências iniciais</Text>
+        
+        <View style={styles.toggleList}>
           <ToggleRow
             label="Receber resultados das apostas"
+            description="Notifique-me quando minhas apostas forem decididas"
             value={pushBetResults}
             onValueChange={(value) => updatePrefs({ pushBetResults: value })}
           />
           <ToggleRow
-            label="Lembrar quando um evento estiver para comecar"
+            label="Lembrar de eventos começando"
+            description="Avise-me quando um jogo favorito estiver para começar"
             value={pushEventStart}
             onValueChange={(value) => updatePrefs({ pushEventStart: value })}
           />
         </View>
       </View>
 
+      {/* Helper Text */}
+      <Text style={styles.helperText}>
+        Você pode alterar isso depois nas configurações do app.
+      </Text>
+
+      {/* CTA */}
       <TouchableOpacity
         style={styles.primaryButton}
         onPress={() => completeOnboarding()}
+        activeOpacity={0.8}
       >
-        <Text style={styles.primaryButtonText}>Entrar no app</Text>
+        <Text style={styles.primaryButtonText}>Começar agora</Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -79,79 +80,137 @@ export function OnboardingScreen() {
 
 function ToggleRow({
   label,
+  description,
   value,
   onValueChange,
 }: {
   label: string;
+  description?: string;
   value: boolean;
   onValueChange: (value: boolean) => void;
 }) {
   return (
     <View style={styles.toggleRow}>
-      <Text style={styles.toggleLabel}>{label}</Text>
+      <View style={styles.toggleTextContainer}>
+        <Text style={styles.toggleLabel}>{label}</Text>
+        {description && <Text style={styles.toggleDescription}>{description}</Text>}
+      </View>
       <Switch
         value={value}
         onValueChange={onValueChange}
-        trackColor={{ false: '#404040', true: 'rgba(34, 197, 94, 0.45)' }}
-        thumbColor={value ? '#22c55e' : '#fafafa'}
+        trackColor={{ false: semanticColors.border.default, true: `${brandColors.green[400]}40` }}
+        thumbColor={value ? brandColors.green[400] : semanticColors.text.muted}
       />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
-  content: { padding: 20, paddingTop: 48, paddingBottom: 40 },
-  hero: { marginBottom: 24 },
-  eyebrow: {
-    color: '#22c55e',
-    fontSize: 11,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    marginBottom: 6,
+  container: {
+    flex: 1,
+    backgroundColor: semanticColors.background.primary,
   },
-  title: { color: '#fafafa', fontSize: 30, fontWeight: '800', marginBottom: 6 },
-  subtitle: { color: '#a3a3a3', fontSize: 13, lineHeight: 20 },
-  section: { marginBottom: 22 },
-  sectionTitle: { color: '#fafafa', fontSize: 16, fontWeight: '700', marginBottom: 10 },
-  stack: { gap: 10 },
-  card: {
-    backgroundColor: '#171717',
-    borderRadius: 16,
-    padding: 16,
+  content: {
+    flexGrow: 1,
+    padding: spacing[6],
+    paddingTop: spacing[12],
+    paddingBottom: spacing[10],
+    alignItems: 'center',
+  },
+  logoContainer: {
+    marginBottom: spacing[8],
+  },
+  logo: {
+    width: 200,
+    height: 55,
+  },
+  headlineSection: {
+    alignItems: 'center',
+    marginBottom: spacing[8],
+  },
+  headline: {
+    color: semanticColors.text.primary,
+    fontSize: typography.fontSize['3xl'],
+    fontWeight: typography.fontWeight.bold,
+    textAlign: 'center',
+    marginBottom: spacing[3],
+    fontFamily: typography.fontFamily.sans,
+  },
+  subheadline: {
+    color: semanticColors.text.secondary,
+    fontSize: typography.fontSize.base,
+    textAlign: 'center',
+    lineHeight: 22,
+    maxWidth: 320,
+    fontFamily: typography.fontFamily.sans,
+  },
+  preferencesCard: {
+    width: '100%',
+    backgroundColor: semanticColors.surface.default,
+    borderRadius: radius['2xl'],
+    padding: spacing[5],
     borderWidth: 1,
-    borderColor: 'rgba(38, 38, 38, 0.5)',
+    borderColor: semanticColors.border.subtle,
+    marginBottom: spacing[4],
   },
-  cardActive: {
-    backgroundColor: 'rgba(34, 197, 94, 0.08)',
-    borderColor: 'rgba(34, 197, 94, 0.35)',
+  preferencesTitle: {
+    color: semanticColors.text.primary,
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.bold,
+    marginBottom: spacing[4],
+    fontFamily: typography.fontFamily.sans,
   },
-  cardTitle: { color: '#fafafa', fontSize: 15, fontWeight: '700', marginBottom: 4 },
-  cardTitleActive: { color: '#22c55e' },
-  cardDescription: { color: '#a3a3a3', fontSize: 12, lineHeight: 18 },
-  panel: {
-    backgroundColor: '#171717',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(38, 38, 38, 0.5)',
-    overflow: 'hidden',
+  toggleList: {
+    gap: spacing[1],
   },
   toggleRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(38, 38, 38, 0.35)',
+    paddingVertical: spacing[3],
+    borderBottomWidth: 1,
+    borderBottomColor: semanticColors.border.subtle,
   },
-  toggleLabel: { flex: 1, color: '#fafafa', fontSize: 14, lineHeight: 20 },
+  toggleTextContainer: {
+    flex: 1,
+    marginRight: spacing[3],
+  },
+  toggleLabel: {
+    color: semanticColors.text.primary,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.medium,
+    marginBottom: spacing[1],
+    fontFamily: typography.fontFamily.sans,
+  },
+  toggleDescription: {
+    color: semanticColors.text.tertiary,
+    fontSize: typography.fontSize.xs,
+    lineHeight: 16,
+    fontFamily: typography.fontFamily.sans,
+  },
+  helperText: {
+    color: semanticColors.text.tertiary,
+    fontSize: typography.fontSize.sm,
+    textAlign: 'center',
+    marginBottom: spacing[6],
+    fontFamily: typography.fontFamily.sans,
+  },
   primaryButton: {
-    backgroundColor: '#22c55e',
-    borderRadius: 16,
+    width: '100%',
+    backgroundColor: brandColors.green[400],
+    borderRadius: radius.xl,
     alignItems: 'center',
-    paddingVertical: 16,
+    paddingVertical: spacing[4],
+    shadowColor: brandColors.green[400],
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 4,
   },
-  primaryButtonText: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  primaryButtonText: {
+    color: semanticColors.background.base,
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.bold,
+    fontFamily: typography.fontFamily.sans,
+  },
 });
