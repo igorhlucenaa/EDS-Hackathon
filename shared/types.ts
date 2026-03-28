@@ -150,3 +150,112 @@ export interface Notification {
   createdAt: string;
   actionUrl?: string;
 }
+
+// ===== Gamification & Missions =====
+
+export type UserProfile = 'beginner' | 'casual' | 'engaged' | 'returning';
+
+export type MissionFrequency = 'daily' | 'weekly' | 'special';
+
+export type MissionStatus = 'locked' | 'available' | 'in_progress' | 'completed' | 'claimed';
+
+export type RewardType = 'odds_boost' | 'freebet' | 'badge' | 'special_mission' | 'avatar' | 'level_up' | 'surprise';
+
+export type UserActionType =
+  | 'open_app'
+  | 'view_match'
+  | 'place_bet_single'
+  | 'place_bet_multiple'
+  | 'place_live_bet'
+  | 'visit_live_screen'
+  | 'explore_new_market'
+  | 'return_next_day'
+  | 'complete_profile'
+  | 'claim_reward'
+  | 'share_bet';
+
+export interface Reward {
+  id: string;
+  type: RewardType;
+  title: string;
+  description: string;
+  icon: string;
+  value?: number;
+  expiresAt?: string;
+  status: 'locked' | 'available' | 'claimed';
+  claimedAt?: string;
+}
+
+export interface Mission {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  frequency: MissionFrequency;
+  targetProfile: UserProfile[];
+  targetAction: UserActionType;
+  targetCount: number;
+  currentCount: number;
+  status: MissionStatus;
+  progress: number;
+  rewards: Reward[];
+  startsAt: string;
+  expiresAt: string;
+  completedAt?: string;
+  order: number;
+}
+
+export interface MissionProgress {
+  missionId: string;
+  currentCount: number;
+  completed: boolean;
+  completedAt?: string;
+}
+
+export interface UserGamificationState {
+  profile: UserProfile;
+  level: number;
+  currentXp: number;
+  nextLevelXp: number;
+  streak: number;
+  lastActiveAt: string;
+  totalMissionsCompleted: number;
+  totalRewardsClaimed: number;
+  dailyMissions: Mission[];
+  weeklyMissions: Mission[];
+  specialMissions: Mission[];
+  rewards: Reward[];
+  completedMissionIds: string[];
+  claimedRewardIds: string[];
+}
+
+export interface UserActionEvent {
+  id: string;
+  type: UserActionType;
+  timestamp: string;
+  metadata?: Record<string, unknown>;
+}
+
+export interface MissionSummary {
+  dailyMission: Mission | null;
+  weeklyMission: Mission | null;
+  currentStreak: number;
+  level: number;
+  xpProgress: number;
+  totalXp: number;
+  nextLevelXp: number;
+  hasAvailableReward: boolean;
+  profile: UserProfile;
+  totalMissionsCompleted: number;
+}
+
+export interface MissionTrail {
+  id: string;
+  profile: UserProfile;
+  title: string;
+  description: string;
+  missions: Mission[];
+  progress: number;
+  isUnlocked: boolean;
+}
+

@@ -17,6 +17,7 @@ import { NotificationsScreen } from '../screens/NotificationsScreen';
 import { PreferencesScreen } from '../screens/PreferencesScreen';
 import { HelpScreen } from '../screens/HelpScreen';
 import { MarketExplorerScreen } from '../screens/MarketExplorerScreen';
+import { MissionsScreen } from '../screens/MissionsScreen';
 import { LoginScreen } from '../screens/LoginScreen';
 import { RegisterScreen } from '../screens/RegisterScreen';
 import { OnboardingScreen } from '../screens/OnboardingScreen';
@@ -138,6 +139,11 @@ export function RootNavigator() {
               name="MarketExplorer"
               component={MarketExplorerScreen}
               options={{ title: 'Mercados' }}
+            />
+            <Stack.Screen
+              name="Missions"
+              component={MissionsScreen}
+              options={{ title: 'Missões' }}
             />
           </>
         )}

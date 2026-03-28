@@ -9,7 +9,9 @@ import {
 } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/types';
+import { useEffect } from 'react';
 import { useFixtureDetail, useFixtureMarkets, useOddsPolling } from '../hooks';
+import { useMissionTracking } from '../hooks/useMissions';
 import { OddsCell } from '../components/OddsCell';
 import { useBetslipStore } from '../stores/betslipStore';
 
@@ -18,6 +20,11 @@ type EventRoute = RouteProp<RootStackParamList, 'Event'>;
 export function EventScreen() {
   const { params } = useRoute<EventRoute>();
   const [activeMarketType, setActiveMarketType] = React.useState<string>('Match Result');
+  const { trackViewMatch } = useMissionTracking();
+
+  useEffect(() => {
+    trackViewMatch(params.id);
+  }, [params.id, trackViewMatch]);
 
   // Buscar dados reais da API
   const { fixture, loading: fixtureLoading } = useFixtureDetail(params.id);

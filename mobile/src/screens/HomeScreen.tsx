@@ -13,16 +13,20 @@ import {
 } from '@shared';
 import { useUserStore } from '../stores/userStore';
 import { useVisitStore } from '../stores/visitStore';
+import { useMissionStore } from '../stores/missionStore';
+import { useMissionSummary, useMissionTracking } from '../hooks/useMissions';
+import { MissionSummaryCard } from '../components/missions/MissionSummaryCard';
 import { EventCard } from '../components/EventCard';
 import { LiveSnapshotCard } from '../components/LiveSnapshotCard';
 import { useBetslipStore } from '../stores/betslipStore';
+import { useEffect } from 'react';
 import type { MainTabParamList, RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
 type QuickChip =
   | { emoji: string; label: string; target: 'tab'; screen: keyof MainTabParamList }
-  | { emoji: string; label: string; target: 'stack'; screen: 'IntentExplore' | 'MarketExplorer' | 'Favorites' };
+  | { emoji: string; label: string; target: 'stack'; screen: 'IntentExplore' | 'MarketExplorer' | 'Favorites' | 'Missions' };
 
 const QUICK_CHIPS: QuickChip[] = [
   { emoji: '⚡', label: 'Odds altas', target: 'stack', screen: 'IntentExplore' },
@@ -30,12 +34,19 @@ const QUICK_CHIPS: QuickChip[] = [
   { emoji: '⏰', label: 'Começando', target: 'tab', screen: 'Explore' },
   { emoji: '🎯', label: 'Mercados', target: 'stack', screen: 'MarketExplorer' },
   { emoji: '⭐', label: 'Favoritos', target: 'stack', screen: 'Favorites' },
+  { emoji: '🎮', label: 'Missões', target: 'stack', screen: 'Missions' },
 ];
 
 export function HomeScreen() {
   const navigation = useNavigation<Nav>();
   const isPro = useUserStore((s) => s.experienceMode === 'pro');
   const welcomeDismissed = useVisitStore((s) => s.homeWelcomeDismissed);
+  const { summary, loading: summaryLoading } = useMissionSummary();
+  const { trackAppOpen } = useMissionTracking();
+
+  useEffect(() => {
+    trackAppOpen();
+  }, []);
 
   const heroEvent = pickHeroLiveEvent(mockLiveEvents);
   const liveGridEvents = mockLiveEvents.filter(
@@ -65,6 +76,12 @@ export function HomeScreen() {
           onPress={() => navigation.navigate('Event', { id: heroEvent.id })}
         />
       )}
+
+      <MissionSummaryCard
+        summary={summary}
+        loading={summaryLoading}
+        onPress={() => navigation.navigate('Missions')}
+      />
 
       <SectionHeader
         title="Apostas rápidas"

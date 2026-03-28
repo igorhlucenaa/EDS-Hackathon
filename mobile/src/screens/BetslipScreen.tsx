@@ -12,6 +12,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { useBetslipStore } from '../stores/betslipStore';
 import { usePlaceBet, useBetCalculator } from '../hooks';
+import { useMissionTracking } from '../hooks/useMissions';
 
 export function BetslipScreen() {
   const navigation = useNavigation();
@@ -19,7 +20,8 @@ export function BetslipScreen() {
   const [stake, setStake] = useState<number>(10);
   const [isPlacing, setIsPlacing] = useState(false);
 
-  // Hook para calcular odds
+  // Hook para compartilhamento
+  const { trackPlaceBet } = useMissionTracking();
   const { calculateTotalOdds, calculateReturn } = useBetCalculator();
 
   // Hook para colocar aposta
@@ -57,6 +59,10 @@ export function BetslipScreen() {
         '✅ Aposta realizada!',
         `Seu cupom #${result.betId} foi registrado.\nRetorno potencial: R$ ${potentialReturn.toFixed(2)}`
       );
+
+      // Track mission
+      const betType = selections.length === 1 ? 'single' : 'multiple';
+      trackPlaceBet(betType);
 
       clearSelections();
       setStake(10);

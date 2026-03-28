@@ -36,11 +36,11 @@ export function MainTabs() {
           headerShown: true,
           headerStyle: { backgroundColor: '#0a0a0a', borderBottomColor: '#262626' },
           headerTintColor: '#fafafa',
-          tabBarStyle: { backgroundColor: '#0a0a0a', borderTopColor: '#262626', height: 72 },
+          tabBarStyle: { backgroundColor: '#0a0a0a', borderTopColor: '#262626', height: 84, paddingBottom: 8 },
           tabBarActiveTintColor: '#22c55e',
           tabBarInactiveTintColor: '#737373',
-          tabBarLabelStyle: { fontSize: 12, fontWeight: '600', marginTop: 2 },
-          tabBarItemStyle: { paddingVertical: 8 },
+          tabBarLabelStyle: { fontSize: 11, fontWeight: '600', marginTop: 0 },
+          tabBarItemStyle: { paddingVertical: 8, height: 68 },
         }}
       >
         <Tab.Screen
@@ -111,9 +111,9 @@ export function MainTabs() {
 }
 
 const styles = StyleSheet.create({
-  tabItem: { alignItems: 'center', justifyContent: 'center' },
-  tabIcon: { fontSize: 22, marginBottom: 4 },
-  tabLabel: { fontSize: 12, fontWeight: '600' },
+  tabItem: { alignItems: 'center', justifyContent: 'flex-start', paddingTop: 2 },
+  tabIcon: { fontSize: 20, marginBottom: 2 },
+  tabLabel: { fontSize: 11, fontWeight: '600' },
   fab: {
     position: 'absolute',
     bottom: 100,
