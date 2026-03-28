@@ -9,6 +9,8 @@ const marketsRoutes = require('./routes/markets');
 const configRoutes = require('./routes/config');
 const missionsRoutes = require('./routes/missions');
 const cashoutRoutes = require('./routes/cashout');
+const guidedBetsRoutes = require('./routes/guided-bets');
+const betsRoutes = require('./routes/bets');
 
 const app = express();
 let PORT = parseInt(process.env.PORT) || 3001;
@@ -36,9 +38,11 @@ app.get('/health', (req, res) => {
 app.use('/api-v2', sportsRoutes);
 app.use('/api-v2', fixturesRoutes);
 app.use('/api-v2', marketsRoutes);
+app.use('/api', betsRoutes);  // bets antes de config para prioridade
 app.use('/api', configRoutes);
 app.use('/api-v2', missionsRoutes);
 app.use('/api-v2', cashoutRoutes);
+app.use('/api-v2', guidedBetsRoutes);
 
 // Error handler
 app.use((err, req, res, next) => {

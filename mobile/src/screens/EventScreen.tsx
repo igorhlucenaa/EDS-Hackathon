@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useCallback, useEffect } from 'react';
 import {
   ScrollView,
   View,
@@ -9,7 +9,8 @@ import {
 } from 'react-native';
 import { useRoute, RouteProp } from '@react-navigation/native';
 import type { RootStackParamList } from '../navigation/types';
-import { useEffect } from 'react';
+import { GuidedBetCard, GuidedBetBuilderSheet } from '../components/guided-bets';
+import { useGuidedBetRecommendations, useAddGuidedBetToSlip } from '../hooks/useGuidedBets';
 import { useFixtureDetail, useFixtureMarkets, useOddsPolling } from '../hooks';
 import { useMissionTracking } from '../hooks/useMissions';
 import { OddsCell } from '../components/OddsCell';
@@ -37,6 +38,20 @@ export function EventScreen() {
 
   const toggleSelection = useBetslipStore((s) => s.toggleSelection);
   const selections = useBetslipStore((s) => s.selections);
+  const setBetslipOpen = useBetslipStore((s) => s.setOpen);
+
+  // Guided Bets integration
+  const { 
+    suggestions: guidedSuggestions, 
+    isLoading: guidedLoading 
+  } = useGuidedBetRecommendations(params.id);
+  const { addToSlip } = useAddGuidedBetToSlip();
+  const [builderVisible, setBuilderVisible] = React.useState(false);
+
+  const handleAddGuidedBetToSlip = React.useCallback((suggestion: any) => {
+    addToSlip(suggestion);
+    setBetslipOpen(true);
+  }, [addToSlip, setBetslipOpen]);
 
   // Agrupar mercados por tipo
   const marketsByType = useMemo(() => {
@@ -118,6 +133,30 @@ export function EventScreen() {
         </View>
       </View>
 
+      {/* Apostas Prontas */}
+      <View style={styles.sectionHeader}>
+        <Text style={styles.sectionTitle}>Apostas prontas para este jogo</Text>
+        <TouchableOpacity onPress={() => setBuilderVisible(true)}>
+          <Text style={styles.builderLink}>Montar com ajuda →</Text>
+        </TouchableOpacity>
+      </View>
+      
+      {guidedLoading ? (
+        <View style={styles.centered}>
+          <ActivityIndicator size="small" color="#22c55e" />
+        </View>
+      ) : guidedSuggestions.length > 0 ? (
+        <View style={styles.guidedBetsContainer}>
+          {guidedSuggestions.slice(0, 2).map((suggestion) => (
+            <GuidedBetCard
+              key={suggestion.id}
+              suggestion={suggestion}
+              onAddToSlip={() => handleAddGuidedBetToSlip(suggestion)}
+            />
+          ))}
+        </View>
+      ) : null}
+
       {/* Tabs de Mercados */}
       {marketTypesAvailable.length > 0 && (
         <View style={styles.marketTabs}>
@@ -169,26 +208,25 @@ export function EventScreen() {
               <View style={styles.oddsRow}>
                 {market.outcomes.map((outcome) => {
                   const isSel = selections.some((s) => s.outcomeId === outcome.id);
-                  const currentOdds =
-                    odds.odds[market.id] && odds.odds[market.id][outcome.id]
-                      ? parseFloat(odds.odds[market.id][outcome.id]).toFixed(2)
-                      : outcome.odds;
+                  const rawOdds = odds.odds[market.id]?.[outcome.id];
+                  const numericOdds: number = rawOdds ? parseFloat(String(rawOdds)) : (typeof outcome.odds === 'string' ? parseFloat(outcome.odds) : outcome.odds);
+                  const currentOdds = numericOdds.toFixed(2);
 
                   return (
                     <OddsCell
                       key={outcome.id}
-                      outcome={{ ...outcome, odds: currentOdds }}
+                      outcome={{ ...outcome, odds: numericOdds }}
                       isSelected={isSel}
                       onSelect={() =>
                         toggleSelection({
                           id: `${fixture.id}-${outcome.id}`,
-                          eventId: fixture.id,
-                          event: fixture,
+                          eventId: String(fixture.id),
+                          event: fixture as any,
                           marketId: market.id,
                           marketName: market.type,
                           outcomeId: outcome.id,
                           outcomeName: outcome.name,
-                          odds: parseFloat(String(currentOdds)),
+                          odds: numericOdds,
                         })
                       }
                     />
@@ -224,6 +262,14 @@ export function EventScreen() {
           </View>
         </View>
       )}
+
+      {/* Guided Bet Builder Modal */}
+      <GuidedBetBuilderSheet
+        eventId={params.id}
+        visible={builderVisible}
+        onClose={() => setBuilderVisible(false)}
+        eventName={`${fixture.homeTeam?.name || 'Time Casa'} vs ${fixture.awayTeam?.name || 'Time Fora'}`}
+      />
     </ScrollView>
   );
 }
@@ -375,6 +421,27 @@ const styles = StyleSheet.create({
   oddsRow: {
     flexDirection: 'row',
     gap: 8,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+    marginTop: 24,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#fafafa',
+  },
+  builderLink: {
+    fontSize: 13,
+    color: '#22c55e',
+    fontWeight: '600',
+  },
+  guidedBetsContainer: {
+    gap: 12,
+    marginBottom: 24,
   },
   statistics: {
     backgroundColor: '#1a1a1a',

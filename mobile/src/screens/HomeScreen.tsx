@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
@@ -13,6 +13,9 @@ import { useVisitStore } from '../stores/visitStore';
 import { useMissionStore } from '../stores/missionStore';
 import { useMissionSummary, useMissionTracking } from '../hooks/useMissions';
 import { useHomeContext } from '../hooks/useHomeContext';
+import { GuidedBetCard, GuidedBetBuilderSheet } from '../components/guided-bets';
+import { useGuidedBetRecommendations, useAddGuidedBetToSlip } from '../hooks/useGuidedBets';
+import { useState, useCallback } from 'react';
 import { EventCard } from '../components/EventCard';
 import { LiveSnapshotCard } from '../components/LiveSnapshotCard';
 import {
@@ -54,7 +57,28 @@ export function HomeScreen() {
   // Determine if first visit (mocked logic)
   const isFirstVisit = recentEventIds.length === 0;
 
-  // Compute home context for dynamic hero
+  const { addToSlip } = useAddGuidedBetToSlip();
+  const [builderVisible, setBuilderVisible] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+
+  // Get guided bet recommendations for first upcoming event
+  const featuredEventId = mockUpcomingEvents[0]?.id || null;
+  const { 
+    suggestions: guidedSuggestions, 
+    isLoading: guidedLoading 
+  } = useGuidedBetRecommendations(featuredEventId);
+
+  const handleOpenBuilder = useCallback((eventId: string) => {
+    setSelectedEventId(eventId);
+    setBuilderVisible(true);
+  }, []);
+
+  const handleAddGuidedBetToSlip = useCallback((suggestion: any) => {
+    addToSlip(suggestion);
+    // Open betslip
+    const { useBetslipStore } = require('../stores/betslipStore');
+    useBetslipStore.getState().setOpen(true);
+  }, [addToSlip]);
   const homeContext = useHomeContext({
     openBets,
     dailyMissions,
@@ -127,7 +151,45 @@ export function HomeScreen() {
       {/* 5. Atalhos por Intenção */}
       <IntentChips onNavigate={handleIntentNavigate} />
 
-      {/* 6. Ao Vivo Agora */}
+      {/* 6. Apostas Prontas para Você */}
+      <SectionHeader
+        title="Apostas prontas para você"
+        actionLabel="Ver todas"
+        onAction={() => navigation.navigate('MainTabs', { screen: 'Explore' })}
+      />
+      {guidedLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color="#22c55e" />
+        </View>
+      ) : guidedSuggestions.length > 0 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.guidedBetsScroll}
+        >
+          {guidedSuggestions.slice(0, 3).map((suggestion) => (
+            <GuidedBetCard
+              key={suggestion.id}
+              suggestion={suggestion}
+              compact
+              onPress={() => navigation.navigate('Event', { id: suggestion.eventId })}
+              onAddToSlip={() => handleAddGuidedBetToSlip(suggestion)}
+            />
+          ))}
+          <TouchableOpacity
+            style={styles.builderCard}
+            onPress={() => handleOpenBuilder(featuredEventId || mockUpcomingEvents[0]?.id || '')}
+          >
+            <Text style={styles.builderIcon}>🎯</Text>
+            <Text style={styles.builderTitle}>Montar com ajuda</Text>
+            <Text style={styles.builderDesc}>Responda perguntas rápidas</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      ) : (
+        <Text style={styles.empty}>Nenhuma sugestão disponível no momento.</Text>
+      )}
+
+      {/* 7. Ao Vivo Agora */}
       <SectionHeader
         title="Ao vivo agora"
         actionLabel="Ver todos"
@@ -221,6 +283,14 @@ export function HomeScreen() {
 
       {/* Bottom spacing */}
       <View style={styles.bottomSpacing} />
+
+      {/* Guided Bet Builder Modal */}
+      <GuidedBetBuilderSheet
+        eventId={selectedEventId || ''}
+        visible={builderVisible}
+        onClose={() => setBuilderVisible(false)}
+        eventName={mockUpcomingEvents.find(e => e.id === selectedEventId)?.home?.name + ' vs ' + mockUpcomingEvents.find(e => e.id === selectedEventId)?.away?.name}
+      />
     </ScrollView>
   );
 }
@@ -379,5 +449,40 @@ const styles = StyleSheet.create({
   },
   bottomSpacing: {
     height: 40,
+  },
+  loadingContainer: {
+    padding: 20,
+    alignItems: 'center',
+  },
+  guidedBetsScroll: {
+    paddingRight: 16,
+    gap: 12,
+  },
+  builderCard: {
+    width: 160,
+    backgroundColor: '#171717',
+    borderRadius: 14,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(34, 197, 94, 0.3)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+  },
+  builderIcon: {
+    fontSize: 32,
+    marginBottom: 12,
+  },
+  builderTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#fafafa',
+    textAlign: 'center',
+    marginBottom: 4,
+  },
+  builderDesc: {
+    fontSize: 11,
+    color: '#737373',
+    textAlign: 'center',
   },
 });

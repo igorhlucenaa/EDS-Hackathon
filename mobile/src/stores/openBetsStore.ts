@@ -38,6 +38,7 @@ interface OpenBetsState {
   // Actions
   loadOpenBets: () => Promise<void>;
   loadBetDetails: (betId: string) => Promise<OpenBet | null>;
+  addBet: (bet: OpenBet) => void;
   loadCashoutOffer: (betId: string) => Promise<CashoutOffer | null>;
   previewCashout: (
     betId: string,
@@ -110,6 +111,20 @@ export const useOpenBetsStore = create<OpenBetsState>()(
             error: err instanceof Error ? err.message : 'Failed to load bet details',
           });
           return null;
+        }
+      },
+
+      // Add bet to local state
+      addBet: (bet: OpenBet) => {
+        const currentBets = get().bets;
+        const alreadyExists = currentBets.find(b => b.id === bet.id);
+        if (!alreadyExists) {
+          const updatedBets = [bet, ...currentBets];
+          set({
+            bets: updatedBets,
+            totalCount: updatedBets.length,
+            totalStaked: updatedBets.reduce((acc, b) => acc + (b.stake || 0), 0),
+          });
         }
       },
 

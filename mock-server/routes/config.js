@@ -101,43 +101,6 @@ router.get('/generic/getTraderPages/:domain/:device/:language_id', (req, res) =>
 });
 
 /**
- * POST /api/user/sportsBet/info
- * Verifica/simula uma aposta
- */
-router.post('/user/sportsBet/info', (req, res) => {
-  const { selections, stake } = req.body;
-
-  // Calcula probabilidades
-  let totalOdds = 1;
-  let totalStake = stake || 10;
-
-  if (selections && selections.length > 0) {
-    totalOdds = selections.reduce((acc, sel) => acc * (sel.odds || 1), 1);
-  }
-
-  const response = {
-    success: true,
-    responseCodes: [{ code: 'OK', message: 'Bet info calculated' }],
-    data: {
-      selections: selections || [],
-      stake: totalStake,
-      totalOdds: parseFloat(totalOdds.toFixed(2)),
-      potentialWin: parseFloat((totalStake * totalOdds).toFixed(2)),
-      profit: parseFloat((totalStake * totalOdds - totalStake).toFixed(2)),
-      betType: selections && selections.length > 1 ? 'accumulator' : 'single',
-      validations: [
-        { field: 'selections', valid: (selections && selections.length > 0) },
-        { field: 'stake', valid: (stake && stake > 0) },
-        { field: 'odds', valid: totalOdds > 0 }
-      ],
-      estimatedPayout: parseFloat((totalStake * totalOdds).toFixed(2))
-    }
-  };
-
-  res.json(response);
-});
-
-/**
  * POST /api/generic/booking/bookabet
  * Faz booking de uma aposta (confirmação)
  */

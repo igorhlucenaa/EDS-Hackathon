@@ -1,11 +1,12 @@
 import React from 'react';
-import { useApi } from './useApi';
+import { ENV_CONFIG } from '../api/environment';
 
 /**
  * Dados de aposta
  */
 export interface Bet {
   id: string;
+  betId?: string;
   fixtureId: string | number;
   fixture: string; // "Team A vs Team B"
   outcomes: BetOutcome[];
@@ -26,19 +27,20 @@ export interface BetOutcome {
 }
 
 export interface BetRequest {
-  fixtureId: string | number;
-  outcomes: Array<{
-    outcomeId: string;
+  selections: Array<{
+    eventId: string;
     marketId: string;
+    outcomeId: string;
     odds: number;
   }>;
   stake: number;
+  expectedReturn?: number;
 }
 
 export interface BetResponse {
   success: boolean;
   betId: string;
-  bet: Bet;
+  bet?: Bet;
   message?: string;
 }
 
@@ -55,7 +57,11 @@ export function usePlaceBet() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('http://localhost:3001/api/user/sportsBet/info', {
+      const url = `${ENV_CONFIG.API_BASEPATH}/api/user/sportsBet/info`;
+      console.log('🌐 Tentando conectar em:', url);
+      console.log('📦 Dados da aposta:', JSON.stringify(betRequest, null, 2));
+
+      const response = await fetch(url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -63,11 +69,14 @@ export function usePlaceBet() {
         body: JSON.stringify(betRequest),
       });
 
+      console.log('📡 Resposta HTTP:', response.status, response.statusText);
+
       if (!response.ok) {
         throw new Error(`Failed to place bet: ${response.statusText}`);
       }
 
       const data: BetResponse = await response.json();
+      console.log('📥 Dados recebidos:', JSON.stringify(data, null, 2));
 
       if (data.success && data.bet) {
         setLastBet(data.bet);
@@ -77,8 +86,9 @@ export function usePlaceBet() {
       }
     } catch (err) {
       const error = err instanceof Error ? err : new Error(String(err));
+      console.error('❌ Erro detalhado:', error);
+      console.error('🔍 Stack trace:', error.stack);
       setError(error);
-      console.error('❌ Erro ao colocar aposta:', error);
       return null;
     } finally {
       setLoading(false);
@@ -190,9 +200,12 @@ export function useBetCalculator() {
   );
 
   const calculateTotalOdds = React.useCallback(
-    (outcomes: Array<{ odds: number }>): number => {
+    (outcomes: Array<{ odds: number } | number>): number => {
       if (outcomes.length === 0) return 0;
-      return outcomes.reduce((acc, outcome) => acc * outcome.odds, 1);
+      return outcomes.reduce((acc: number, outcome) => {
+        const odds = typeof outcome === 'number' ? outcome : outcome.odds;
+        return acc * odds;
+      }, 1);
     },
     []
   );

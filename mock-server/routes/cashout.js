@@ -7,8 +7,8 @@ const express = require('express');
 const router = express.Router();
 
 // Import mocks
-const { mockBets, mockUser } = require('../../shared/mocks/user');
-const { mockLiveEvents } = require('../../shared/mocks/events');
+const { mockBets, mockUser } = require('../data/mocks');
+const { mockLiveEvents } = require('../data/mocks');
 
 // In-memory store for cashout simulation (session-based)
 const cashoutStore = new Map();
