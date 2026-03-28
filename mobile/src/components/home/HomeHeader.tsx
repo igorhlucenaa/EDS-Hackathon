@@ -15,13 +15,13 @@ export function HomeHeader({ context, onMissionPress }: HomeHeaderProps) {
   return (
     <View style={styles.container}>
       {/* Logo */}
-      <View style={styles.logoContainer}>
+      {/* <View style={styles.logoContainer}>
         <Image
           source={require('../../../assets/logos/logo-white-s.png')}
           style={styles.logo}
           resizeMode="contain"
         />
-      </View>
+      </View> */}
 
       <View style={styles.topRow}>
         <View style={styles.greetingSection}>
