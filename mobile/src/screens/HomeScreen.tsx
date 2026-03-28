@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from 'react';
-import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import {
@@ -9,10 +9,14 @@ import {
   mockPromotions,
   mockBets,
 } from '@shared';
+import { semanticColors, brandColors, spacing, typography, radius } from '../theme';
 import { useVisitStore } from '../stores/visitStore';
 import { useMissionStore } from '../stores/missionStore';
 import { useMissionSummary, useMissionTracking } from '../hooks/useMissions';
 import { useHomeContext } from '../hooks/useHomeContext';
+import { GuidedBetCard, GuidedBetBuilderSheet } from '../components/guided-bets';
+import { useGuidedBetRecommendations, useAddGuidedBetToSlip } from '../hooks/useGuidedBets';
+import { useState, useCallback } from 'react';
 import { EventCard } from '../components/EventCard';
 import { LiveSnapshotCard } from '../components/LiveSnapshotCard';
 import {
@@ -54,7 +58,28 @@ export function HomeScreen() {
   // Determine if first visit (mocked logic)
   const isFirstVisit = recentEventIds.length === 0;
 
-  // Compute home context for dynamic hero
+  const { addToSlip } = useAddGuidedBetToSlip();
+  const [builderVisible, setBuilderVisible] = useState(false);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+
+  // Get guided bet recommendations for first upcoming event
+  const featuredEventId = mockUpcomingEvents[0]?.id || null;
+  const { 
+    suggestions: guidedSuggestions, 
+    isLoading: guidedLoading 
+  } = useGuidedBetRecommendations(featuredEventId);
+
+  const handleOpenBuilder = useCallback((eventId: string) => {
+    setSelectedEventId(eventId);
+    setBuilderVisible(true);
+  }, []);
+
+  const handleAddGuidedBetToSlip = useCallback((suggestion: any) => {
+    addToSlip(suggestion);
+    // Open betslip
+    const { useBetslipStore } = require('../stores/betslipStore');
+    useBetslipStore.getState().setOpen(true);
+  }, [addToSlip]);
   const homeContext = useHomeContext({
     openBets,
     dailyMissions,
@@ -127,7 +152,45 @@ export function HomeScreen() {
       {/* 5. Atalhos por Intenção */}
       <IntentChips onNavigate={handleIntentNavigate} />
 
-      {/* 6. Ao Vivo Agora */}
+      {/* 6. Apostas Prontas para Você */}
+      <SectionHeader
+        title="Apostas prontas para você"
+        actionLabel="Ver todas"
+        onAction={() => navigation.navigate('MainTabs', { screen: 'Explore' })}
+      />
+      {guidedLoading ? (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator color="#22c55e" />
+        </View>
+      ) : guidedSuggestions.length > 0 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.guidedBetsScroll}
+        >
+          {guidedSuggestions.slice(0, 3).map((suggestion) => (
+            <GuidedBetCard
+              key={suggestion.id}
+              suggestion={suggestion}
+              compact
+              onPress={() => navigation.navigate('Event', { id: suggestion.eventId })}
+              onAddToSlip={() => handleAddGuidedBetToSlip(suggestion)}
+            />
+          ))}
+          <TouchableOpacity
+            style={styles.builderCard}
+            onPress={() => handleOpenBuilder(featuredEventId || mockUpcomingEvents[0]?.id || '')}
+          >
+            <Text style={styles.builderIcon}>🎯</Text>
+            <Text style={styles.builderTitle}>Montar com ajuda</Text>
+            <Text style={styles.builderDesc}>Responda perguntas rápidas</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      ) : (
+        <Text style={styles.empty}>Nenhuma sugestão disponível no momento.</Text>
+      )}
+
+      {/* 7. Ao Vivo Agora */}
       <SectionHeader
         title="Ao vivo agora"
         actionLabel="Ver todos"
@@ -221,6 +284,14 @@ export function HomeScreen() {
 
       {/* Bottom spacing */}
       <View style={styles.bottomSpacing} />
+
+      {/* Guided Bet Builder Modal */}
+      <GuidedBetBuilderSheet
+        eventId={selectedEventId || ''}
+        visible={builderVisible}
+        onClose={() => setBuilderVisible(false)}
+        eventName={mockUpcomingEvents.find(e => e.id === selectedEventId)?.home?.name + ' vs ' + mockUpcomingEvents.find(e => e.id === selectedEventId)?.away?.name}
+      />
     </ScrollView>
   );
 }
@@ -261,123 +332,170 @@ function SectionHeader({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0a0a0a',
+    backgroundColor: semanticColors.background.primary,
   },
-  content: {
-    padding: 16,
-    paddingBottom: 120,
+  scrollContent: {
+    paddingTop: spacing[4],
+    paddingBottom: spacing[8],
+  },
+  section: {
+    marginBottom: spacing[6],
   },
   sectionHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 12,
-    marginTop: 8,
+    paddingHorizontal: spacing[4],
+    marginBottom: spacing[3],
   },
   sectionTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#fafafa',
+    fontSize: typography.fontSize.lg,
+    fontWeight: typography.fontWeight.bold,
+    color: semanticColors.text.primary,
+    fontFamily: typography.fontFamily.sans,
   },
   sectionAction: {
-    fontSize: 13,
-    color: '#22c55e',
-    fontWeight: '600',
+    fontSize: typography.fontSize.sm,
+    color: brandColors.blue[400],
+    fontWeight: typography.fontWeight.semibold,
+    fontFamily: typography.fontFamily.sans,
   },
-  grid: {
-    gap: 12,
-  },
-  empty: {
-    fontSize: 13,
-    color: '#737373',
-    marginBottom: 16,
-    fontStyle: 'italic',
-  },
+  // Sports
   sportsScroll: {
-    paddingRight: 16,
-    gap: 10,
+    paddingHorizontal: spacing[4],
+    paddingBottom: spacing[2],
   },
-  sportChip: {
+  sportItem: {
     alignItems: 'center',
-    backgroundColor: '#171717',
-    paddingHorizontal: 18,
-    paddingVertical: 12,
-    borderRadius: 14,
-    marginRight: 10,
-    minWidth: 80,
-    borderWidth: 1,
-    borderColor: 'rgba(38, 38, 38, 0.5)',
+    marginRight: spacing[5],
+    paddingVertical: spacing[2],
   },
   sportIcon: {
-    fontSize: 20,
-    marginBottom: 6,
+    fontSize: 28,
+    marginBottom: spacing[2],
   },
   sportName: {
-    fontSize: 11,
-    fontWeight: '600',
-    color: '#a3a3a3',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.semibold,
+    color: semanticColors.text.tertiary,
+    fontFamily: typography.fontFamily.sans,
+  },
+  sportNameActive: {
+    color: brandColors.green[400],
+    fontWeight: typography.fontWeight.bold,
   },
   liveCount: {
-    fontSize: 10,
-    color: '#ef4444',
-    fontWeight: '500',
-    marginTop: 2,
+    fontSize: typography.fontSize.xs,
+    color: semanticColors.state.live,
+    fontWeight: typography.fontWeight.medium,
+    fontFamily: typography.fontFamily.sans,
+    marginTop: spacing[1],
   },
+  // Events
+  eventsScroll: {
+    paddingLeft: spacing[4],
+    paddingRight: spacing[2],
+    gap: spacing[3],
+  },
+  // Promos
   promoScroll: {
-    paddingRight: 16,
-    gap: 12,
+    paddingRight: spacing[4],
+    gap: spacing[3],
   },
   promoCard: {
-    width: 270,
-    backgroundColor: '#171717',
-    borderRadius: 16,
-    padding: 18,
-    marginRight: 12,
+    width: 280,
+    backgroundColor: semanticColors.surface.default,
+    borderRadius: radius.xl,
+    padding: spacing[5],
+    marginRight: spacing[3],
     borderWidth: 1,
-    borderColor: 'rgba(38, 38, 38, 0.5)',
+    borderColor: semanticColors.border.subtle,
   },
   promoCardWelcome: {
-    borderColor: 'rgba(168, 85, 247, 0.4)',
-    backgroundColor: 'rgba(168, 85, 247, 0.08)',
+    borderColor: `${brandColors.blue[500]}40`,
+    backgroundColor: `${brandColors.blue[500]}10`,
   },
   promoCardLive: {
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-    backgroundColor: 'rgba(239, 68, 68, 0.05)',
+    borderColor: `${semanticColors.state.live}40`,
+    backgroundColor: `${semanticColors.state.live}10`,
   },
   promoHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    marginBottom: spacing[3],
   },
   promoCategory: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: '#22c55e',
+    fontSize: typography.fontSize.xs,
+    fontWeight: typography.fontWeight.bold,
+    color: brandColors.green[400],
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+    fontFamily: typography.fontFamily.sans,
   },
   promoBadge: {
-    fontSize: 11,
+    fontSize: typography.fontSize.xs,
   },
   promoTitle: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#fafafa',
-    marginBottom: 6,
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.bold,
+    color: semanticColors.text.primary,
+    marginBottom: spacing[2],
+    fontFamily: typography.fontFamily.sans,
   },
   promoDesc: {
-    fontSize: 13,
-    color: '#a3a3a3',
-    marginBottom: 12,
-    lineHeight: 18,
+    fontSize: typography.fontSize.sm,
+    color: semanticColors.text.tertiary,
+    marginBottom: spacing[4],
+    lineHeight: 20,
+    fontFamily: typography.fontFamily.sans,
   },
   promoCta: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: '#22c55e',
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.bold,
+    color: brandColors.green[400],
+    fontFamily: typography.fontFamily.sans,
   },
+  // Guided bets
+  guidedBetsScroll: {
+    paddingRight: spacing[4],
+    gap: spacing[3],
+  },
+  builderCard: {
+    width: 160,
+    backgroundColor: semanticColors.surface.default,
+    borderRadius: radius.xl,
+    padding: spacing[4],
+    borderWidth: 1,
+    borderColor: `${brandColors.green[400]}30`,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: spacing[3],
+  },
+  builderIcon: {
+    fontSize: 32,
+    marginBottom: spacing[3],
+  },
+  builderTitle: {
+    fontSize: typography.fontSize.sm,
+    fontWeight: typography.fontWeight.bold,
+    color: semanticColors.text.primary,
+    textAlign: 'center',
+    marginBottom: spacing[1],
+    fontFamily: typography.fontFamily.sans,
+  },
+  builderDesc: {
+    fontSize: typography.fontSize.xs,
+    color: semanticColors.text.tertiary,
+    textAlign: 'center',
+    fontFamily: typography.fontFamily.sans,
+  },
+  // Misc
   bottomSpacing: {
-    height: 40,
+    height: spacing[10],
+  },
+  loadingContainer: {
+    padding: spacing[6],
+    alignItems: 'center',
   },
 });

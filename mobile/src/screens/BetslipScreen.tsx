@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import { useBetslipStore } from '../stores/betslipStore';
 import { usePlaceBet, useBetCalculator } from '../hooks';
 import { useMissionTracking } from '../hooks/useMissions';
+import { useOpenBetsStore } from '../stores/openBetsStore';
 
 export function BetslipScreen() {
   const navigation = useNavigation();
@@ -26,6 +27,9 @@ export function BetslipScreen() {
 
   // Hook para colocar aposta
   const { placeBet, loading: placingBet } = usePlaceBet();
+  
+  // Store para adicionar aposta à lista local
+  const { addBet } = useOpenBetsStore();
 
   // Calcular odds e retorno
   const totalOdds = calculateTotalOdds(selections.map((s) => s.odds));
@@ -55,9 +59,33 @@ export function BetslipScreen() {
         expectedReturn: potentialReturn,
       });
 
+      if (!result || !result.id) {
+        throw new Error('Falha ao colocar aposta - resposta inválida');
+      }
+
+      // Adicionar aposta ao store local para aparecer em "Minhas Apostas"
+      addBet({
+        id: result.id,
+        status: 'pending',
+        type: selections.length === 1 ? 'single' : 'accumulator',
+        fixture: selections.map(s => `${s.event?.home?.name || ''} vs ${s.event?.away?.name || ''}`).join(', '),
+        selections: selections.map(s => ({
+          id: s.outcomeId,
+          outcomeName: s.outcomeName,
+          marketName: s.marketName,
+          eventName: `${s.event?.home?.name || ''} vs ${s.event?.away?.name || ''}`,
+          odds: s.odds,
+          eventId: s.eventId,
+        })),
+        stake: stake,
+        potentialReturn: potentialReturn,
+        totalOdds: totalOdds,
+        createdAt: new Date().toISOString(),
+      } as any);
+
       Alert.alert(
         '✅ Aposta realizada!',
-        `Seu cupom #${result.betId} foi registrado.\nRetorno potencial: R$ ${potentialReturn.toFixed(2)}`
+        `Seu cupom #${result.id} foi registrado.\nRetorno potencial: R$ ${potentialReturn.toFixed(2)}`
       );
 
       // Track mission
@@ -109,7 +137,7 @@ export function BetslipScreen() {
           <View key={sel.id} style={styles.selection}>
             <View style={styles.selectionInfo}>
               <Text style={styles.selectionTeams}>
-                {sel.event.homeTeam?.name || 'Time A'} × {sel.event.awayTeam?.name || 'Time B'}
+                {sel.event?.home?.name || 'Time A'} × {sel.event?.away?.name || 'Time B'}
               </Text>
               <Text style={styles.selectionMarket}>
                 {sel.marketName} - {sel.outcomeName}

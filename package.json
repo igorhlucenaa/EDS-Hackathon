@@ -1,6 +1,7 @@
 {
   "name": "swiftbet-native",
   "private": true,
+  "author": "INsonia",
   "version": "0.0.0",
   "scripts": {
     "dev": "cd mobile && npm start",

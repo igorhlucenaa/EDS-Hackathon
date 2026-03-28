@@ -15,12 +15,14 @@ interface EnvironmentConfig {
 
 const ENVIRONMENTS: Record<string, EnvironmentConfig> = {
   mock: {
-    API_BASEPATH: 'http://localhost:3001',
-    // Para real device, use o IP da sua máquina:
-    // API_BASEPATH: 'http://192.168.x.x:3001',
+    // Use 10.0.2.2 para Android Emulator (localhost não funciona no Android)
+    API_BASEPATH: 'http://10.0.2.2:3001',
     
-    // Para emulador Android:
-    // API_BASEPATH: 'http://10.0.2.2:3001',
+    // Para iOS Simulator:
+    // API_BASEPATH: 'http://localhost:3001',
+    
+    // Para dispositivo real na mesma rede:
+    // API_BASEPATH: 'http://192.168.x.x:3001',
     
     API_TIMEOUT: 5000,
     ENABLE_LOGGING: true,

@@ -38,6 +38,7 @@ interface OpenBetsState {
   // Actions
   loadOpenBets: () => Promise<void>;
   loadBetDetails: (betId: string) => Promise<OpenBet | null>;
+  addBet: (bet: OpenBet) => void;
   loadCashoutOffer: (betId: string) => Promise<CashoutOffer | null>;
   previewCashout: (
     betId: string,
@@ -56,14 +57,85 @@ interface OpenBetsState {
   updateBetAfterCashout: (betId: string, result: CashoutExecutionResult) => void;
 }
 
+// Mock initial bets
+const MOCK_BETS: OpenBet[] = [
+  {
+    id: 'bet-mock-1',
+    status: 'open',
+    betType: 'single',
+    selections: [
+      {
+        id: 'sel-1',
+        outcomeName: 'Flamengo vence',
+        marketName: 'Match Result',
+        eventName: 'Flamengo vs Palmeiras',
+        odds: 2.1,
+        eventId: 'evt-1',
+      },
+    ],
+    stake: 50,
+    potentialReturn: 105,
+    placedAt: new Date(Date.now() - 3600000).toISOString(),
+    cashoutOffer: {
+      betId: 'bet-mock-1',
+      status: 'available',
+      availableAmount: 42.5,
+      originalStake: 50,
+      potentialReturn: 105,
+      updatedAt: new Date().toISOString(),
+    },
+  },
+  {
+    id: 'bet-mock-2',
+    status: 'cashout_available',
+    betType: 'accumulator',
+    selections: [
+      { id: 'sel-2', outcomeName: 'Casa vence', marketName: 'Match Result', eventName: 'Arsenal vs Chelsea', odds: 1.8, eventId: 'evt-2' },
+      { id: 'sel-3', outcomeName: 'Over 2.5', marketName: 'Total Goals', eventName: 'Real vs Barça', odds: 1.9, eventId: 'evt-3' },
+      { id: 'sel-4', outcomeName: 'Sim', marketName: 'Ambas Marcam', eventName: 'Liverpool vs City', odds: 1.7, eventId: 'evt-4' },
+    ],
+    stake: 30,
+    potentialReturn: 174.6,
+    placedAt: new Date(Date.now() - 7200000).toISOString(),
+    cashoutOffer: {
+      betId: 'bet-mock-2',
+      status: 'available',
+      availableAmount: 45.3,
+      originalStake: 30,
+      potentialReturn: 174.6,
+      updatedAt: new Date().toISOString(),
+    },
+  },
+  {
+    id: 'bet-mock-3',
+    status: 'live',
+    betType: 'single',
+    selections: [
+      {
+        id: 'sel-5',
+        outcomeName: 'Casa/Empate',
+        marketName: 'Double Chance',
+        eventName: 'Corinthians vs São Paulo',
+        odds: 1.35,
+        eventId: 'evt-5',
+        score: { home: 1, away: 0 },
+        minute: 67,
+      },
+    ],
+    stake: 100,
+    potentialReturn: 135,
+    placedAt: new Date(Date.now() - 1800000).toISOString(),
+  },
+];
+
 export const useOpenBetsStore = create<OpenBetsState>()(
   persist(
     (set, get) => ({
-      // Initial state
-      bets: [],
-      totalCount: 0,
-      totalStaked: 0,
-      totalCashoutAvailable: 0,
+      // Initial state with mock bets
+      bets: MOCK_BETS,
+      totalCount: MOCK_BETS.length,
+      totalStaked: MOCK_BETS.reduce((acc, b) => acc + (b.stake || 0), 0),
+      totalCashoutAvailable: MOCK_BETS.reduce((acc, b) => acc + (b.cashoutOffer?.availableAmount || 0), 0),
       isLoading: false,
       isLoadingOffer: false,
       isExecuting: false,
@@ -110,6 +182,20 @@ export const useOpenBetsStore = create<OpenBetsState>()(
             error: err instanceof Error ? err.message : 'Failed to load bet details',
           });
           return null;
+        }
+      },
+
+      // Add bet to local state
+      addBet: (bet: OpenBet) => {
+        const currentBets = get().bets;
+        const alreadyExists = currentBets.find(b => b.id === bet.id);
+        if (!alreadyExists) {
+          const updatedBets = [bet, ...currentBets];
+          set({
+            bets: updatedBets,
+            totalCount: updatedBets.length,
+            totalStaked: updatedBets.reduce((acc, b) => acc + (b.stake || 0), 0),
+          });
         }
       },
 

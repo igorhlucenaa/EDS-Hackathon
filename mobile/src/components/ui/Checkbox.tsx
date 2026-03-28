@@ -5,6 +5,7 @@ import {
   Text,
   StyleSheet,
 } from 'react-native';
+import { brandColors, semanticColors, radius, spacing, typography } from '../../theme';
 
 interface CheckboxProps {
   checked: boolean;
@@ -77,92 +78,98 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    paddingVertical: 12,
+    paddingVertical: spacing[3],
   },
   defaultContainer: {
     // Default styling
   },
   bonusContainer: {
-    backgroundColor: 'rgba(34, 197, 94, 0.08)',
-    borderRadius: 12,
-    padding: 14,
+    backgroundColor: `${brandColors.green[400]}14`, // 8% opacity
+    borderRadius: radius.lg,
+    padding: spacing[4],
     borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.2)',
+    borderColor: `${brandColors.green[400]}33`, // 20% opacity
   },
   legalContainer: {
-    paddingVertical: 8,
+    paddingVertical: spacing[2],
   },
   checkbox: {
     width: 22,
     height: 22,
-    borderRadius: 6,
+    borderRadius: radius.md,
     borderWidth: 2,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 12,
+    marginRight: spacing[3],
     marginTop: 1,
   },
   // Default variant
   defaultBox: {
-    borderColor: '#525252',
+    borderColor: semanticColors.border.strong,
     backgroundColor: 'transparent',
   },
   defaultBoxChecked: {
-    borderColor: '#22c55e',
-    backgroundColor: '#22c55e',
+    borderColor: brandColors.green[400],
+    backgroundColor: brandColors.green[400],
   },
   defaultLabel: {
-    color: '#fafafa',
-    fontSize: 14,
+    color: semanticColors.text.primary,
+    fontSize: typography.fontSize.base,
+    fontFamily: typography.fontFamily.sans,
   },
   defaultSublabel: {
-    color: '#a3a3a3',
-    fontSize: 12,
-    marginTop: 2,
+    color: semanticColors.text.tertiary,
+    fontSize: typography.fontSize.sm,
+    marginTop: spacing[1],
+    fontFamily: typography.fontFamily.sans,
   },
   // Bonus variant
   bonusBox: {
-    borderColor: '#22c55e',
+    borderColor: brandColors.green[400],
     backgroundColor: 'transparent',
   },
   bonusBoxChecked: {
-    borderColor: '#22c55e',
-    backgroundColor: '#22c55e',
+    borderColor: brandColors.green[400],
+    backgroundColor: brandColors.green[400],
   },
   bonusLabel: {
-    color: '#22c55e',
-    fontSize: 14,
-    fontWeight: '600',
+    color: brandColors.green[400],
+    fontSize: typography.fontSize.base,
+    fontWeight: typography.fontWeight.semibold,
+    fontFamily: typography.fontFamily.sans,
   },
   bonusSublabel: {
-    color: '#a3a3a3',
-    fontSize: 12,
-    marginTop: 2,
+    color: semanticColors.text.tertiary,
+    fontSize: typography.fontSize.sm,
+    marginTop: spacing[1],
+    fontFamily: typography.fontFamily.sans,
   },
   // Legal variant
   legalBox: {
-    borderColor: '#525252',
+    borderColor: semanticColors.border.strong,
     backgroundColor: 'transparent',
     width: 18,
     height: 18,
-    borderRadius: 4,
+    borderRadius: radius.sm,
   },
   legalBoxChecked: {
-    borderColor: '#22c55e',
-    backgroundColor: '#22c55e',
+    borderColor: brandColors.green[400],
+    backgroundColor: brandColors.green[400],
     width: 18,
     height: 18,
-    borderRadius: 4,
+    borderRadius: radius.sm,
   },
   legalLabel: {
-    color: '#a3a3a3',
-    fontSize: 12,
+    color: semanticColors.text.tertiary,
+    fontSize: typography.fontSize.sm,
     lineHeight: 18,
+    fontFamily: typography.fontFamily.sans,
   },
   legalSublabel: {
-    color: '#737373',
-    fontSize: 11,
-    marginTop: 2,
+    color: semanticColors.text.muted,
+    fontSize: typography.fontSize.xs,
+    marginTop: spacing[1],
+    fontFamily: typography.fontFamily.sans,
   },
   textContainer: {
     flex: 1,
@@ -174,7 +181,7 @@ const styles = StyleSheet.create({
     lineHeight: 16,
   },
   checkmark: {
-    color: '#fff',
+    color: semanticColors.background.base,
     fontSize: 14,
     fontWeight: 'bold',
   },

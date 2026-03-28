@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "SwiftBet Native",
-    "slug": "swiftbet-native",
+    "name": "Esportes da Sorte",
+    "slug": "esportes-da-sorte",
     "version": "1.0.0",
     "orientation": "portrait",
     "platforms": ["ios", "android"],

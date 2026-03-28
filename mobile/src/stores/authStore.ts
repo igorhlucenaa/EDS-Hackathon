@@ -20,7 +20,7 @@ export const useAuthStore = create<AuthState>()(
       startOnboarding: () => set({ onboardingDone: false }),
     }),
     {
-      name: 'swiftbet-native-auth-v2',
+      name: 'esportesdasorte-auth-v2',
       storage: createJSONStorage(() => AsyncStorage),
     }
   )

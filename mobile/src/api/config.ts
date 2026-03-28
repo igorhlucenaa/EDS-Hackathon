@@ -1,3 +1,5 @@
+import { ENV_CONFIG } from './environment';
+
 export type ApiDevice = 'mobile' | 'desktop' | 'w' | 'd';
 
 type RuntimeEnv = Record<string, string | undefined>;
@@ -40,8 +42,15 @@ function parseTimeout(value: string): number {
   return parsed;
 }
 
-const DEFAULT_API_BASEPATH = 'https://esportesdasorte.bet.br/api';
-const DEFAULT_API_V2_BASEPATH = 'https://esportesdasorte.bet.br/api-v2';
+// Use ENV_CONFIG para mock server, ou variáveis de ambiente para produção
+const isMockMode = ENV_CONFIG.DEBUG === true;
+
+const DEFAULT_API_BASEPATH = isMockMode 
+  ? `${ENV_CONFIG.API_BASEPATH}/api` 
+  : 'https://esportesdasorte.bet.br/api';
+const DEFAULT_API_V2_BASEPATH = isMockMode 
+  ? `${ENV_CONFIG.API_BASEPATH}/api-v2` 
+  : 'https://esportesdasorte.bet.br/api-v2';
 
 const apiBasePath = normalizeBaseUrl(
   readEnv('EXPO_PUBLIC_API_BASEPATH', DEFAULT_API_BASEPATH)

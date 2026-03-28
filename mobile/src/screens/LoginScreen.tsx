@@ -6,6 +6,7 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -27,10 +28,14 @@ export function LoginScreen() {
       keyboardShouldPersistTaps="handled"
     >
       <View style={styles.hero}>
-        <Text style={styles.eyebrow}>SwiftBet Native</Text>
+        <Image
+          source={require('../../assets/logos/logo-white-c.png')}
+          style={styles.logo}
+          resizeMode="contain"
+        />
         <Text style={styles.title}>Entrar</Text>
         <Text style={styles.subtitle}>
-          Base totalmente mobile-first em React Native com navegacao nativa.
+          Acesse sua conta para continuar apostando com a gente.
         </Text>
       </View>
 
@@ -103,16 +108,14 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
-  hero: { marginBottom: 24 },
-  eyebrow: {
-    color: '#22c55e',
-    fontSize: 11,
-    fontWeight: '700',
-    textTransform: 'uppercase',
-    marginBottom: 6,
+  hero: { marginBottom: 24, alignItems: 'center' },
+  logo: {
+    width: 180,
+    height: 50,
+    marginBottom: 24,
   },
   title: { color: '#fafafa', fontSize: 32, fontWeight: '800', marginBottom: 6 },
-  subtitle: { color: '#a3a3a3', fontSize: 13, lineHeight: 20 },
+  subtitle: { color: '#a3a3a3', fontSize: 13, lineHeight: 20, textAlign: 'center' },
   form: { gap: 14, marginBottom: 20 },
   field: { gap: 8 },
   fieldLabel: { color: '#fafafa', fontSize: 13, fontWeight: '600' },

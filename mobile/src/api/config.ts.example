@@ -25,7 +25,7 @@ export const API_CONFIG = {
   timeout: API_TIMEOUT,
   headers: {
     'Content-Type': 'application/json',
-    'User-Agent': 'SwiftBet/1.0',
+    'User-Agent': 'EsportesDaSorte/1.0',
   },
 };
 
@@ -81,7 +81,7 @@ export const DEFAULT_PARAMS = {
   device: 'm', // 'm' = mobile, 'd' = desktop
   language: '1', // 1 = pt-BR, 2 = en-US, etc...
   trader: 'trader123', // ID do trader
-  domain: 'swiftbet', // Domínio da aplicação
+  domain: 'esportesdasorte', // Domínio da aplicação
 };
 
 /**
