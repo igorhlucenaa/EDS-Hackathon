@@ -1,46 +1,35 @@
-import React from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import type { SportEvent } from '@shared';
 import {
   mockSports,
   mockLiveEvents,
   mockUpcomingEvents,
   mockPromotions,
   mockBets,
-  pickHeroLiveEvent,
 } from '@shared';
-import { useUserStore } from '../stores/userStore';
 import { useVisitStore } from '../stores/visitStore';
 import { useMissionStore } from '../stores/missionStore';
 import { useMissionSummary, useMissionTracking } from '../hooks/useMissions';
-import { MissionSummaryCard } from '../components/missions/MissionSummaryCard';
+import { useHomeContext } from '../hooks/useHomeContext';
 import { EventCard } from '../components/EventCard';
 import { LiveSnapshotCard } from '../components/LiveSnapshotCard';
-import { useBetslipStore } from '../stores/betslipStore';
-import { useEffect } from 'react';
+import {
+  HomeHeader,
+  HeroCard,
+  ContinueSection,
+  IntentChips,
+  MissionActionCard,
+} from '../components/home';
 import type { MainTabParamList, RootStackParamList } from '../navigation/types';
 
 type Nav = NativeStackNavigationProp<RootStackParamList>;
 
-type QuickChip =
-  | { emoji: string; label: string; target: 'tab'; screen: keyof MainTabParamList }
-  | { emoji: string; label: string; target: 'stack'; screen: 'IntentExplore' | 'MarketExplorer' | 'Favorites' | 'Missions' };
-
-const QUICK_CHIPS: QuickChip[] = [
-  { emoji: '⚡', label: 'Odds altas', target: 'stack', screen: 'IntentExplore' },
-  { emoji: '🔥', label: 'Ao vivo', target: 'tab', screen: 'Live' },
-  { emoji: '⏰', label: 'Começando', target: 'tab', screen: 'Explore' },
-  { emoji: '🎯', label: 'Mercados', target: 'stack', screen: 'MarketExplorer' },
-  { emoji: '⭐', label: 'Favoritos', target: 'stack', screen: 'Favorites' },
-  { emoji: '🎮', label: 'Missões', target: 'stack', screen: 'Missions' },
-];
-
 export function HomeScreen() {
   const navigation = useNavigation<Nav>();
-  const isPro = useUserStore((s) => s.experienceMode === 'pro');
-  const welcomeDismissed = useVisitStore((s) => s.homeWelcomeDismissed);
+  const { recentEventIds } = useVisitStore();
+  const { dailyMissions, level } = useMissionStore();
   const { summary, loading: summaryLoading } = useMissionSummary();
   const { trackAppOpen } = useMissionTracking();
 
@@ -48,11 +37,62 @@ export function HomeScreen() {
     trackAppOpen();
   }, []);
 
-  const heroEvent = pickHeroLiveEvent(mockLiveEvents);
-  const liveGridEvents = mockLiveEvents.filter(
-    (e) => !heroEvent || e.id !== heroEvent.id
-  ).slice(0, 3);
-  const openBets = mockBets.filter((b) => b.status === 'open' || b.status === 'live');
+  // Filter open bets
+  const openBets = useMemo(
+    () => mockBets.filter((b) => b.status === 'open' || b.status === 'live'),
+    []
+  );
+
+  // Get recent events based on visit history
+  const recentEvents = useMemo(() => {
+    return recentEventIds
+      .map((id) => mockLiveEvents.find((e) => e.id === id) || mockUpcomingEvents.find((e) => e.id === id))
+      .filter(Boolean)
+      .slice(0, 2);
+  }, [recentEventIds]);
+
+  // Determine if first visit (mocked logic)
+  const isFirstVisit = recentEventIds.length === 0;
+
+  // Compute home context for dynamic hero
+  const homeContext = useHomeContext({
+    openBets,
+    dailyMissions,
+    recentEventIds,
+    liveEvents: mockLiveEvents,
+    upcomingEvents: mockUpcomingEvents,
+    isFirstVisit,
+    currentLevel: level,
+  });
+
+  // Handle hero CTA press
+  const handleHeroPress = () => {
+    if (!homeContext.heroData) return;
+
+    switch (homeContext.heroData.type) {
+      case 'bet':
+        navigation.navigate('MainTabs', { screen: 'Bets' });
+        break;
+      case 'mission':
+        navigation.navigate('Missions');
+        break;
+      case 'event':
+        navigation.navigate('Event', { id: homeContext.heroData.event.id });
+        break;
+      case 'promo':
+        navigation.navigate('Promotions');
+        break;
+    }
+  };
+
+  // Handle intent chip navigation
+  const handleIntentNavigate = (target: 'tab' | 'stack', screen: string) => {
+    if (target === 'tab') {
+      navigation.navigate('MainTabs', { screen: screen as keyof MainTabParamList });
+    } else {
+      navigation.navigate(screen as keyof RootStackParamList);
+    }
+  };
 
   return (
     <ScrollView
@@ -60,120 +100,42 @@ export function HomeScreen() {
       contentContainerStyle={styles.content}
       showsVerticalScrollIndicator={false}
     >
-      {!welcomeDismissed && (
-        <TouchableOpacity
-          style={styles.welcomeBanner}
-          onPress={() => useVisitStore.getState().dismissHomeWelcome()}
-        >
-          <Text style={styles.welcomeTitle}>Bem-vindo ao SwiftBet</Text>
-          <Text style={styles.welcomeSub}>Apostas esportivas com inteligência. Toque para continuar.</Text>
-        </TouchableOpacity>
-      )}
+      {/* 1. Header Contextual */}
+      <HomeHeader
+        context={homeContext}
+        onMissionPress={() => navigation.navigate('Missions')}
+      />
 
-      {heroEvent && (
-        <HeroFeaturedCard
-          event={heroEvent}
-          onPress={() => navigation.navigate('Event', { id: heroEvent.id })}
-        />
-      )}
+      {/* 2. Hero Dinâmico Principal */}
+      <HeroCard context={homeContext} onPress={handleHeroPress} />
 
-      <MissionSummaryCard
+      {/* 3. Bloco de Missão/Progressão */}
+      <MissionActionCard
         summary={summary}
         loading={summaryLoading}
         onPress={() => navigation.navigate('Missions')}
       />
 
-      <SectionHeader
-        title="Apostas rápidas"
-        description="Atalhos por objetivo."
-        actionLabel="Por intenção"
-        onAction={() => navigation.navigate('IntentExplore')}
+      {/* 4. Continue de onde parou */}
+      <ContinueSection
+        openBets={openBets}
+        recentEvents={recentEvents as any[]}
+        onBetPress={() => navigation.navigate('MainTabs', { screen: 'Bets' })}
+        onEventPress={(eventId) => navigation.navigate('Event', { id: eventId })}
       />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll}>
-        {QUICK_CHIPS.map((item) => (
-          <TouchableOpacity
-            key={item.screen + item.label}
-            style={styles.chip}
-            onPress={() => {
-              if (item.target === 'tab') {
-                navigation.navigate('MainTabs', { screen: item.screen });
-                return;
-              }
 
-              navigation.navigate(item.screen);
-            }}
-          >
-            <Text style={styles.chipEmoji}>{item.emoji}</Text>
-            <Text style={styles.chipLabel}>{item.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      {/* 5. Atalhos por Intenção */}
+      <IntentChips onNavigate={handleIntentNavigate} />
 
-      <SectionHeader title="Esportes" />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll}>
-        {mockSports.slice(0, 6).map((sport) => (
-          <TouchableOpacity
-            key={sport.id}
-            style={styles.sportChip}
-            onPress={() => navigation.navigate('Sport', { sportId: sport.id })}
-          >
-            <Text style={styles.sportIcon}>{sport.icon}</Text>
-            <Text style={styles.sportName}>{sport.name}</Text>
-            {sport.liveCount > 0 && (
-              <Text style={styles.liveCount}>{sport.liveCount} ao vivo</Text>
-            )}
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
-      {openBets.length > 0 && (
-        <>
-          <SectionHeader
-            title="Suas apostas abertas"
-            actionLabel="Ver todas"
-            onAction={() => navigation.navigate('MainTabs', { screen: 'Bets' })}
-          />
-          {openBets.slice(0, 2).map((bet) => (
-            <View key={bet.id} style={styles.betCard}>
-              <View style={styles.betHeader}>
-                <View
-                  style={[
-                    styles.betStatus,
-                    bet.status === 'live' ? styles.betLive : styles.betOpen,
-                  ]}
-                >
-                  <Text style={styles.betStatusText}>
-                    {bet.status === 'live' ? 'Ao vivo' : 'Aberta'}
-                  </Text>
-                </View>
-                <Text style={styles.betType}>
-                  {bet.betType === 'accumulator' ? 'Acumulada' : 'Simples'}
-                </Text>
-              </View>
-              {bet.selections.map((sel) => (
-                <Text key={sel.id} style={styles.betSelection}>
-                  <Text style={styles.betSelectionName}>{sel.outcomeName}</Text>
-                  {' — '}
-                  {sel.marketName}
-                </Text>
-              ))}
-              <View style={styles.betFooter}>
-                <Text style={styles.betStake}>Stake: R${bet.stake.toFixed(2)}</Text>
-                <Text style={styles.betReturn}>R${bet.potentialReturn.toFixed(2)}</Text>
-              </View>
-            </View>
-          ))}
-        </>
-      )}
-
+      {/* 6. Ao Vivo Agora */}
       <SectionHeader
-        title="Mais jogos ao vivo"
+        title="Ao vivo agora"
         actionLabel="Ver todos"
         onAction={() => navigation.navigate('MainTabs', { screen: 'Live' })}
       />
-      {liveGridEvents.length > 0 ? (
+      {mockLiveEvents.length > 0 ? (
         <View style={styles.grid}>
-          {liveGridEvents.map((event) => (
+          {mockLiveEvents.slice(0, 3).map((event) => (
             <LiveSnapshotCard
               key={event.id}
               event={event}
@@ -182,9 +144,10 @@ export function HomeScreen() {
           ))}
         </View>
       ) : (
-        <Text style={styles.empty}>Não há outros jogos ao vivo no momento.</Text>
+        <Text style={styles.empty}>Nenhum jogo ao vivo no momento.</Text>
       )}
 
+      {/* 7. Começando em Breve */}
       <SectionHeader
         title="Começando em breve"
         actionLabel="Explorar"
@@ -200,19 +163,53 @@ export function HomeScreen() {
         ))}
       </View>
 
+      {/* 8. Esportes */}
+      <SectionHeader title="Esportes" />
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.sportsScroll}
+      >
+        {mockSports.slice(0, 6).map((sport) => (
+          <TouchableOpacity
+            key={sport.id}
+            style={styles.sportChip}
+            onPress={() => navigation.navigate('Sport', { sportId: sport.id })}
+          >
+            <Text style={styles.sportIcon}>{sport.icon}</Text>
+            <Text style={styles.sportName}>{sport.name}</Text>
+            {sport.liveCount > 0 && (
+              <Text style={styles.liveCount}>{sport.liveCount} ao vivo</Text>
+            )}
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+
+      {/* 9. Promoções Contextuais */}
       <SectionHeader
-        title="Promoções"
+        title="Ofertas para você"
         actionLabel="Ver todas"
         onAction={() => navigation.navigate('Promotions')}
       />
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipsScroll}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.promoScroll}
+      >
         {mockPromotions.map((promo) => (
           <TouchableOpacity
             key={promo.id}
-            style={styles.promoCard}
+            style={[
+              styles.promoCard,
+              promo.category === 'welcome' && styles.promoCardWelcome,
+              promo.category === 'live' && styles.promoCardLive,
+            ]}
             onPress={() => navigation.navigate('Promotions')}
           >
-            <Text style={styles.promoCategory}>{promo.category}</Text>
+            <View style={styles.promoHeader}>
+              <Text style={styles.promoCategory}>{getPromoLabel(promo.category)}</Text>
+              {promo.category === 'welcome' && <Text style={styles.promoBadge}>🔥 Hot</Text>}
+            </View>
             <Text style={styles.promoTitle}>{promo.title}</Text>
             <Text style={styles.promoDesc} numberOfLines={2}>
               {promo.description}
@@ -221,95 +218,31 @@ export function HomeScreen() {
           </TouchableOpacity>
         ))}
       </ScrollView>
+
+      {/* Bottom spacing */}
+      <View style={styles.bottomSpacing} />
     </ScrollView>
   );
 }
 
-function HeroFeaturedCard({
-  event,
-  onPress,
-}: {
-  event: SportEvent;
-  onPress: () => void;
-}) {
-  const m = event.markets[0];
-  const toggleSelection = useBetslipStore((s) => s.toggleSelection);
-  const selections = useBetslipStore((s) => s.selections);
-
-  return (
-    <View style={styles.heroSection}>
-      <Text style={styles.heroLabel}>Destaque da home</Text>
-      <TouchableOpacity style={styles.heroCard} onPress={onPress} activeOpacity={0.9}>
-        <View style={styles.heroHeader}>
-          <Text style={styles.heroBadge}>Jogo em destaque</Text>
-          <View style={styles.heroLive}>
-            <View style={styles.heroLiveDot} />
-            <Text style={styles.heroLiveText}>Ao vivo</Text>
-          </View>
-          <Text style={styles.heroClock}>{event.status.clock}</Text>
-          <Text style={styles.heroLeague}>{event.league.name}</Text>
-        </View>
-        <View style={styles.heroScore}>
-          <View style={styles.heroTeam}>
-            <Text style={styles.heroTeamName}>{event.home.shortName}</Text>
-            <Text style={styles.heroTeamFull}>{event.home.name}</Text>
-          </View>
-          <View style={styles.heroScoreBox}>
-            <Text style={styles.heroScoreText}>
-              {event.status.score?.home} - {event.status.score?.away}
-            </Text>
-            <Text style={styles.heroPeriod}>{event.status.period}</Text>
-          </View>
-          <View style={styles.heroTeam}>
-            <Text style={styles.heroTeamName}>{event.away.shortName}</Text>
-            <Text style={styles.heroTeamFull}>{event.away.name}</Text>
-          </View>
-        </View>
-        {m && (
-          <View style={styles.heroOdds}>
-            {m.outcomes.map((o) => {
-              const isSel = selections.some((sel) => sel.outcomeId === o.id);
-              return (
-                <TouchableOpacity
-                  key={o.id}
-                  style={[styles.heroOddsBtn, isSel && styles.heroOddsSelected]}
-                  onPress={() =>
-                    toggleSelection({
-                      id: `${event.id}-${o.id}`,
-                      eventId: event.id,
-                      event,
-                      marketId: m.id,
-                      marketName: m.name,
-                      outcomeId: o.id,
-                      outcomeName: o.name,
-                      odds: o.odds,
-                    })
-                  }
-                >
-                  <Text style={[styles.heroOddsLabel, isSel && styles.heroOddsSelectedText]}>
-                    {o.name}
-                  </Text>
-                  <Text style={[styles.heroOddsValue, isSel && styles.heroOddsSelectedText]}>
-                    {o.odds.toFixed(2)}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </View>
-        )}
-      </TouchableOpacity>
-    </View>
-  );
+// Helper function for promo labels
+function getPromoLabel(category: string): string {
+  const labels: Record<string, string> = {
+    welcome: 'Boas-vindas',
+    live: 'Ao vivo',
+    cashback: 'Cashback',
+    bonus: 'Bônus',
+  };
+  return labels[category] || category;
 }
 
+// Section Header Component
 function SectionHeader({
   title,
-  description,
   actionLabel,
   onAction,
 }: {
   title: string;
-  description?: string;
   actionLabel?: string;
   onAction?: () => void;
 }) {
@@ -321,153 +254,130 @@ function SectionHeader({
           <Text style={styles.sectionAction}>{actionLabel} →</Text>
         </TouchableOpacity>
       )}
-      {description && (
-        <Text style={styles.sectionDesc}>{description}</Text>
-      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#0a0a0a' },
-  content: { padding: 16, paddingBottom: 100 },
-  welcomeBanner: {
-    backgroundColor: 'rgba(34, 197, 94, 0.15)',
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.3)',
-  },
-  welcomeTitle: { fontSize: 16, fontWeight: '700', color: '#22c55e', marginBottom: 4 },
-  welcomeSub: { fontSize: 12, color: '#737373' },
-  heroSection: { marginBottom: 20 },
-  heroLabel: {
-    fontSize: 10,
-    fontWeight: '600',
-    color: '#22c55e',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 4,
-  },
-  heroCard: {
-    backgroundColor: '#171717',
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: 'rgba(34, 197, 94, 0.2)',
-  },
-  heroHeader: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    gap: 6,
-    marginBottom: 12,
-  },
-  heroBadge: { fontSize: 12, fontWeight: '600', color: '#22c55e' },
-  heroLive: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  heroLiveDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#ef4444' },
-  heroLiveText: { fontSize: 12, fontWeight: '600', color: '#ef4444' },
-  heroClock: { fontSize: 12, color: '#737373' },
-  heroLeague: { fontSize: 12, color: '#737373', marginLeft: 'auto' },
-  heroScore: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 12,
-  },
-  heroTeam: { flex: 1, alignItems: 'center' },
-  heroTeamName: { fontSize: 24, fontWeight: '700', color: '#fafafa' },
-  heroTeamFull: { fontSize: 12, color: '#737373', marginTop: 4 },
-  heroScoreBox: { paddingHorizontal: 16, alignItems: 'center' },
-  heroScoreText: { fontSize: 28, fontWeight: '800', color: '#22c55e' },
-  heroPeriod: { fontSize: 10, color: '#737373', marginTop: 4 },
-  heroOdds: { flexDirection: 'row', gap: 8 },
-  heroOddsBtn: {
+  container: {
     flex: 1,
-    paddingVertical: 8,
-    alignItems: 'center',
-    backgroundColor: 'rgba(38, 38, 38, 0.8)',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(38, 38, 38, 0.5)',
+    backgroundColor: '#0a0a0a',
   },
-  heroOddsSelected: { backgroundColor: '#22c55e', borderColor: '#22c55e' },
-  heroOddsLabel: { fontSize: 10, color: '#737373' },
-  heroOddsValue: { fontSize: 14, fontWeight: '700', color: '#fafafa' },
-  heroOddsSelectedText: { color: 'rgba(255,255,255,0.9)' },
-  sectionHeader: { marginBottom: 12 },
-  sectionTitle: { fontSize: 16, fontWeight: '700', color: '#fafafa', marginBottom: 4 },
-  sectionAction: { fontSize: 12, color: '#22c55e', fontWeight: '500' },
-  sectionDesc: { fontSize: 12, color: '#737373' },
-  chipsScroll: { marginBottom: 16, marginHorizontal: -16 },
-  chip: {
+  content: {
+    padding: 16,
+    paddingBottom: 120,
+  },
+  sectionHeader: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 6,
-    backgroundColor: '#262626',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 999,
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(38, 38, 38, 0.5)',
+    marginBottom: 12,
+    marginTop: 8,
   },
-  chipEmoji: { fontSize: 14 },
-  chipLabel: { fontSize: 12, fontWeight: '500', color: '#a3a3a3' },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#fafafa',
+  },
+  sectionAction: {
+    fontSize: 13,
+    color: '#22c55e',
+    fontWeight: '600',
+  },
+  grid: {
+    gap: 12,
+  },
+  empty: {
+    fontSize: 13,
+    color: '#737373',
+    marginBottom: 16,
+    fontStyle: 'italic',
+  },
+  sportsScroll: {
+    paddingRight: 16,
+    gap: 10,
+  },
   sportChip: {
     alignItems: 'center',
     backgroundColor: '#171717',
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderRadius: 12,
-    marginRight: 8,
-    minWidth: 72,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 14,
+    marginRight: 10,
+    minWidth: 80,
     borderWidth: 1,
     borderColor: 'rgba(38, 38, 38, 0.5)',
   },
-  sportIcon: { fontSize: 18, marginBottom: 4 },
-  sportName: { fontSize: 10, fontWeight: '500', color: '#737373' },
-  liveCount: { fontSize: 9, color: '#ef4444', fontWeight: '500' },
-  betCard: {
-    backgroundColor: '#171717',
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(38, 38, 38, 0.5)',
+  sportIcon: {
+    fontSize: 20,
+    marginBottom: 6,
   },
-  betHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  betStatus: { paddingHorizontal: 8, paddingVertical: 2, borderRadius: 999 },
-  betLive: { backgroundColor: 'rgba(239, 68, 68, 0.2)' },
-  betOpen: { backgroundColor: 'rgba(34, 197, 94, 0.1)' },
-  betStatusText: { fontSize: 10, fontWeight: '500' },
-  betType: { fontSize: 12, color: '#737373' },
-  betSelection: { fontSize: 12, color: '#737373', marginBottom: 4 },
-  betSelectionName: { color: '#fafafa', fontWeight: '500' },
-  betFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(38, 38, 38, 0.3)',
+  sportName: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#a3a3a3',
   },
-  betStake: { fontSize: 12, color: '#737373' },
-  betReturn: { fontSize: 14, fontWeight: '600', color: '#22c55e' },
-  grid: { gap: 12 },
-  empty: { fontSize: 12, color: '#737373', marginBottom: 16 },
+  liveCount: {
+    fontSize: 10,
+    color: '#ef4444',
+    fontWeight: '500',
+    marginTop: 2,
+  },
+  promoScroll: {
+    paddingRight: 16,
+    gap: 12,
+  },
   promoCard: {
-    width: 260,
+    width: 270,
     backgroundColor: '#171717',
-    borderRadius: 12,
-    padding: 16,
+    borderRadius: 16,
+    padding: 18,
     marginRight: 12,
     borderWidth: 1,
     borderColor: 'rgba(38, 38, 38, 0.5)',
   },
-  promoCategory: { fontSize: 10, fontWeight: '600', color: '#22c55e', textTransform: 'uppercase', marginBottom: 4 },
-  promoTitle: { fontSize: 14, fontWeight: '700', color: '#fafafa', marginBottom: 4 },
-  promoDesc: { fontSize: 12, color: '#737373', marginBottom: 8 },
-  promoCta: { fontSize: 12, fontWeight: '600', color: '#22c55e' },
+  promoCardWelcome: {
+    borderColor: 'rgba(168, 85, 247, 0.4)',
+    backgroundColor: 'rgba(168, 85, 247, 0.08)',
+  },
+  promoCardLive: {
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    backgroundColor: 'rgba(239, 68, 68, 0.05)',
+  },
+  promoHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  promoCategory: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#22c55e',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+  },
+  promoBadge: {
+    fontSize: 11,
+  },
+  promoTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: '#fafafa',
+    marginBottom: 6,
+  },
+  promoDesc: {
+    fontSize: 13,
+    color: '#a3a3a3',
+    marginBottom: 12,
+    lineHeight: 18,
+  },
+  promoCta: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#22c55e',
+  },
+  bottomSpacing: {
+    height: 40,
+  },
 });
